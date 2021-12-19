@@ -190,8 +190,8 @@ echo "create PR using HTTP POST"
 echo
 
 RESPONSE=$(curl \
-    -s
-    -w "GHARIAL_PR_HTTP_STATUS:%{http_code}"
+    -s \
+    -w "GHARIAL_PR_HTTP_STATUS:%{http_code}" \
     -X POST \
     -H "Authorization: Bearer $GH_CONFIG_TOKEN" \
     -H "Accept: application/vnd.github.v3+json" \
