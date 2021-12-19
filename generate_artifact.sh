@@ -53,6 +53,10 @@ execute_cmd_spinner() {
 }
 
 
+# STEP 0: pull all remote repo changes in case we are running from an already cloned repo:
+git pull
+
+
 # STEP 1: generate dummy artifact:
 
 ARTIFACT_NAME="gharial_artifact_${CURRENT_DATE}_${CURRENT_TIME}.sh"
