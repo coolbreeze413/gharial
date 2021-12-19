@@ -219,8 +219,8 @@ echo "$ACTUAL_RESPONSE" > curl_response.debug.log
 # extract the status code:
 GHARIAL_HTTP_STATUS=$(echo "$RESPONSE" | tr -d '\n' | sed -e 's/.*GHARIAL_PR_HTTP_STATUS://')
 
-# extract the PR URL only if response code is ok:
-if [ GHARIAL_HTTP_STATUS == "200" ] ; then
+# extract the PR URL only if response code is ok (gh returns 201 created!):
+if [ $GHARIAL_HTTP_STATUS == "201" ] ; then
     PR_URL=$(echo "$ACTUAL_RESPONSE" | jq '.html_url')
     echo
     echo "PR created : ${PR_URL}"
