@@ -86,7 +86,7 @@ execute_cmd_spinner
 touch "$ARTIFACT_NAME"
 echo "#!/bin/bash" >> "$ARTIFACT_NAME"
 echo "" >> "$ARTIFACT_NAME"
-echo "ARTIFACT_NAME=$ARTIFACT_NAME" >> "$ARTIFACT_NAME"
+echo "ARTIFACT_NAME=\"$ARTIFACT_NAME\"" >> "$ARTIFACT_NAME"
 echo "" >> "$ARTIFACT_NAME"
 echo "echo \"$ARTIFACT_NAME\"" >> "$ARTIFACT_NAME"
 echo "" >> "$ARTIFACT_NAME"
