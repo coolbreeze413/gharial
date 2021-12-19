@@ -65,24 +65,24 @@ git pull
 ARTIFACT_NAME="gharial_artifact_${CURRENT_DATE}_${CURRENT_TIME}.sh"
 ARTIFACTS_DIR="${GHARIAL_ROOT_DIR}/artifacts"
 
-
 echo
 echo "creating new artifact: $ARTIFACT_NAME"
 echo
 
-
+# pretend we are busy
 CMD_WITH_SPINNER="sleep 3"
-CMD_WITH_SPINNER_MSG="hard at work creating the artifact [trust me!]"
+CMD_WITH_SPINNER_MSG="hard at work"
 set_spinner_snakey
 execute_cmd_spinner
 echo $OUPUT
 
+# pretend we are busy
 CMD_WITH_SPINNER="sleep 3"
-CMD_WITH_SPINNER_MSG="doing some more work [really!]"
-set_spinner_infinity
+CMD_WITH_SPINNER_MSG="doing some more work"
+set_spinner_rotatingbar
 execute_cmd_spinner
 
-
+# generate artifact
 touch "$ARTIFACT_NAME"
 echo "#!/bin/bash" >> "$ARTIFACT_NAME"
 echo "" >> "$ARTIFACT_NAME"
@@ -92,20 +92,28 @@ echo "echo \"$ARTIFACT_NAME\"" >> "$ARTIFACT_NAME"
 echo "" >> "$ARTIFACT_NAME"
 
 # move the artifact into the target dir:
-mv "$ARTIFACT_NAME" "${ARTIFACTS_DIR}/${ARTIFACT_NAME}"
+mv -v "$ARTIFACT_NAME" "${ARTIFACTS_DIR}/${ARTIFACT_NAME}"
 
 
 
-# STEP 2: commit the artifact into new branch
+# STEP 2: commit the artifact into new branch (for raising a PR)
 DEFAULT_BRANCH_NAME="master"
-NEW_BRANCH_NAME="br_package_${CURRENT_DATE}_${CURRENT_TIME}"
-git checkout -b "$NEW_BRANCH_NAME"
+PR_BRANCH_NAME="br_package_${CURRENT_DATE}_${CURRENT_TIME}"
+
+echo
+echo "commit artifact to a new branch and push upstream."
+echo "        repo: ${GH_REPO}"
+echo "      branch: ${PR_BRANCH_NAME}"
+echo "    artifact: ${ARTIFACTS_DIR}/${ARTIFACT_NAME}"
+echo
+
+git checkout -b "$PR_BRANCH_NAME"
 git status
 git add "${ARTIFACTS_DIR}/${ARTIFACT_NAME}"
 git status
 git commit -m "add new artifact ${ARTIFACT_NAME}"
 git status
-git push -u origin "$NEW_BRANCH_NAME"
+git push -u origin "$PR_BRANCH_NAME"
 git checkout "$DEFAULT_BRANCH_NAME"
 git pull
 
@@ -115,6 +123,12 @@ git pull
 #   REF: https://cli.github.com/manual/gh_pr_create
 # B: create PR using a HTTP POST request
 #   REF: https://docs.github.com/en/rest/reference/pulls#create-a-pull-request
+#   B.1 : use curl to execute the HTTP POST (current approach)
+#   B.2 : use python, FUTURE TODO.
+#           an easier way would be to use a python script to generate the json, AND POST the request AND verify the response
+#           AND extract the GH PAT from the config file, assuming that we used the token while cloning the repo
+#           python3 generate_gh_pr --gh_pr_owner="" --gh_pr_repo="" --gh_pr_title="" --gh_pr_body="" --gh_pr_head="" gh_pr_base="" gh_pr_is_draft="" gh_pr_issue=""
+
 
 # curl POST request:
 # REF: https://gist.github.com/subfuzion/08c5d85437d5d4f00e58
@@ -136,23 +150,69 @@ git pull
 #   if not used, then response body is output of curl
 # -w will extract the status code from the response
 
-GH_PR_TITLE="Add new artifact: ${ARTIFACT_NAME}"
+GH_PR_TITLE="[GHARIAL-AUTO] Add new artifact: ${ARTIFACT_NAME}"
 GH_PR_BODY="We have a new artifact generated!\n\nWe would like to add this with this PR!\n"
-GH_PR_IS_DRAFT="false" # "true otherwise"
-GH_PR_ISSUE="" # integer number referencing the issue
+GH_PR_IS_DRAFT="false" # "true" if we want it to be a draft PR
+GH_PR_ISSUE="" # integer number referencing an issue to link PR with an issue
 
-# an easier way would be to use a python script to generate the json, AND POST the request AND verify the response
-# python3 generate_gh_pr --gh_pr_owner="" --gh_pr_repo="" --gh_pr_title="" --gh_pr_body="" --gh_pr_head="" gh_pr_base="" gh_pr_is_draft="" gh_pr_issue=""
-# FUTURE TODO.
 
-curl \
+# assuming we cloned the repo using a PAT, the token is stored in .git/config file in plaintext
+# what we want is the pattern: "url = https://TOKEN@github.com/OWNER/REPO[.git]"
+# using regex:
+regex_git_info_string="^.*url.*=.*https://(.+)@github.com/([^/]+)/(\S+)(\..*|\s+)"
+git_info_string=`cat .git/config`
+
+if [[ $git_info_string =~ $regex_git_info_string ]] ; then
+    #echo "${BASH_REMATCH[1]}" # token
+    #echo "${BASH_REMATCH[2]}" # username
+    #echo "${BASH_REMATCH[3]}" # repo or repo.git
+
+    GH_CONFIG_TOKEN=${BASH_REMATCH[1]}  # use the token from here
+    GH_CONFIG_OWNER=${BASH_REMATCH[2]}  # we don't use this
+    GH_CONFIG_REPO=${BASH_REMATCH[3]}   # we don't use this
+fi
+
+if [ -z "$GH_CONFIG_TOKEN" ] ; then
+    echo
+    echo "[ERROR] could not obtain PAT from local .git/config..."
+    echo "did you clone the repo using a PAT?"
+    echo " Aborting PR step - create the PR manually..."
+    echo
+    exit 1
+fi
+
+# use the github token for authorization in the curl POST request.
+
+echo
+echo "create PR using HTTP POST"
+echo
+
+RESPONSE=$(curl \
     -X POST \
+    -H "Authorization: Bearer $GH_CONFIG_TOKEN" \
     -H "Accept: application/vnd.github.v3+json" \
-    -d "{\"title\":\"${GH_PR_TITLE}\",\"head\":\"${NEW_BRANCH_NAME}\",\"base\":\"${DEFAULT_BRANCH_NAME}\",\"body\":\"$GH_PR_BODY\"}" \
-    https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/pulls
+    -d "{\"title\":\"${GH_PR_TITLE}\",\"head\":\"${PR_BRANCH_NAME}\",\"base\":\"${DEFAULT_BRANCH_NAME}\",\"body\":\"${GH_PR_BODY}\"}" \
+    "https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/pulls")
 
 CURL_POST_STATUS=$?
-echo
-echo "CURL_POST_STATUS=$CURL_POST_STATUS"
-echo
+
+if [ $CURL_POST_STATUS -ne 0 ] ; then
+
+    echo
+    echo "curl failed with status = ${CURL_POST_STATUS}"
+    echo "    refer to below link for error details: "
+    echo "    https://everything.curl.dev/usingcurl/returns"
+    echo
+    exit 1
+
+fi
+
+echo "$RESPONSE" > curl_response.debug.log
+
+exit 0
+
+
+
+
+
 
