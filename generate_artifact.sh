@@ -99,7 +99,7 @@ mv "$ARTIFACT_NAME" "${ARTIFACTS_DIR}/${ARTIFACT_NAME}"
 # STEP 2: commit the artifact into new branch
 DEFAULT_BRANCH_NAME="master"
 NEW_BRANCH_NAME="br_package_${CURRENT_DATE}_${CURRENT_TIME}"
-git checkout -b "$BRANCH_NAME"
+git checkout -b "$NEW_BRANCH_NAME"
 git status
 git add "${ARTIFACTS_DIR}/${ARTIFACT_NAME}"
 git status
@@ -146,7 +146,6 @@ GH_PR_ISSUE="" # integer number referencing the issue
 # FUTURE TODO.
 
 curl \
-    -w \
     -X POST \
     -H "Accept: application/vnd.github.v3+json" \
     -d "{\"title\":\"${GH_PR_TITLE}\",\"head\":\"${NEW_BRANCH_NAME}\",\"base\":\"${DEFAULT_BRANCH_NAME}\",\"body\":\"$GH_PR_BODY\"}" \
