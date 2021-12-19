@@ -149,6 +149,8 @@ git pull
 # -o /path/to/file will extract the response body and put it into a file
 #   if not used, then response body is output of curl
 # -w will extract the status code from the response
+# look at this for ref on how to get status code AND response both:
+#   https://stackoverflow.com/a/33900500/3379867
 
 GH_PR_TITLE="[GHARIAL-AUTO] Add new artifact: ${ARTIFACT_NAME}"
 GH_PR_BODY="We have a new artifact generated!\n\nWe would like to add this with this PR!\n"
@@ -176,7 +178,7 @@ if [ -z "$GH_CONFIG_TOKEN" ] ; then
     echo
     echo "[ERROR] could not obtain PAT from local .git/config..."
     echo "did you clone the repo using a PAT?"
-    echo " Aborting PR step - create the PR manually..."
+    echo "aborting PR step - create the PR manually..."
     echo
     exit 1
 fi
@@ -188,6 +190,8 @@ echo "create PR using HTTP POST"
 echo
 
 RESPONSE=$(curl \
+    -s
+    -w "GHARIAL_PR_HTTP_STATUS:%{http_code}"
     -X POST \
     -H "Authorization: Bearer $GH_CONFIG_TOKEN" \
     -H "Accept: application/vnd.github.v3+json" \
@@ -207,12 +211,26 @@ if [ $CURL_POST_STATUS -ne 0 ] ; then
 
 fi
 
-echo "$RESPONSE" > curl_response.debug.log
+
+# extract the actual reponse only:
+ACTUAL_RESPONSE=$(echo "$RESPONSE" | sed -e 's/^GHARIAL_PR_HTTP_STATUS:.*//')
+echo "$ACTUAL_RESPONSE" > curl_response.debug.log
+
+# extract the status code:
+GHARIAL_HTTP_STATUS=$(echo "$RESPONSE" | tr -d '\n' | sed -e 's/.*GHARIAL_PR_HTTP_STATUS://')
+
+# extract the PR URL only if response code is ok:
+if [ GHARIAL_HTTP_STATUS == "200" ] ; then
+    PR_URL=$(echo "$ACTUAL_RESPONSE" | jq '.html_url')
+    echo
+    echo "PR created : ${PR_URL}"
+    echo
+else
+    echo
+    echo "HTTP POST failed, with status: $GHARIAL_HTTP_STATUS"
+    echo
+    exit 1
+fi
+
 
 exit 0
-
-
-
-
-
-
