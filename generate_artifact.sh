@@ -90,5 +90,18 @@ mv "$ARTIFACT_NAME" "${ARTIFACTS_DIR}/${ARTIFACT_NAME}"
 
 
 # STEP 2: commit the artifact into new branch
+BRANCH_NAME="br_package_${CURRENT_DATE}_${CURRENT_TIME}"
+git checkout -b "$BRANCH_NAME"
+git status
+git add "${ARTIFACTS_DIR}/${ARTIFACT_NAME}"
+git status
+git commit -m "add new artifact ${ARTIFACT_NAME}"
+git status
+git push -u origin "$BRANCH_NAME"
+git checkout master
+git pull
+
+
+# STEP 3: create PR for the new branch once it is upstream
 
 
