@@ -231,7 +231,7 @@ if [ $GH_PR_STATUS -ne 0 ] ; then
 fi
 
 echo
-echo "gh pr created ok:"
+echo "gh pr created [OK]"
 echo "    $PR_URL"
 echo
 
@@ -331,15 +331,90 @@ GH_MERGE_STATUS=$?
 if [ $GH_MERGE_STATUS -ne 0 ] ; then
 
     echo
-    echo "[ERROR] gh pr create failed: $GH_PR_STATUS"
+    echo "[ERROR] gh pr merge failed: $GH_MERGE_STATUS"
+    echo "$GH_MERGE_RESPONSE"
     echo
     exit 1
 
 fi
 
 echo
-echo "gh merge ok:"
-echo "$GH_MERGE_RESPONSE"
+echo "gh merge [OK]"
+echo
+
+# pull in the latest changes from remote after PR merge
+git pull
+# or use gh repo sync ?
+
+
+# STEP 5: create release with latest artifact
+
+# generate a tag version!
+CURRENT_VERSION=`git describe --abbrev=0 --tags 2>/dev/null`
+if [ -z $CURRENT_VERSION ] ; then
+    
+    CURRENT_VERSION="v0.0.0"
+    NEW_VERSION="v1.0.0"
+
+else
+
+    # remove "v"
+    CURRENT_VERSION_PARTS=$(echo "$CURRENT_VERSION" | sed 's/v//')
+    # replace . with space so can split into an array
+    CURRENT_VERSION_PARTS=(${CURRENT_VERSION_PARTS//./ })
+
+    # get MAJOR, MINOR, PATCH
+    V_MAJOR=${CURRENT_VERSION_PARTS[0]}
+    V_MINOR=${CURRENT_VERSION_PARTS[1]}
+    V_PATCH=${CURRENT_VERSION_PARTS[2]}
+
+    # use custom logic to determine new MAJOR/MINOR/PATCH version numbers:
+    # current we use a simple "increment minor"
+    V_MINOR=$((V_MINOR+1))
+
+    # remember to add "v"
+    NEW_VERSION="v${V_MAJOR}.${V_MINOR}.${V_PATCH}"
+
+fi
+
+echo "CURRENT_VERSION=$CURRENT_VERSION"
+echo "NEW_VERSION=$NEW_VERSION"
+
+
+# generate a changelog! TODO FUTURE
+
+
+# create release
+# release notes:
+RELEASE_NOTES_FILE="${PWD}/gh_release_changelog_tmp.md"
+touch $RELEASE_NOTES_FILE
+echo "placeholder notes content for notes or changelog in markdown format!!" >> "$RELEASE_NOTES_FILE"
+echo "blah blah notes for ${ARTIFACT_NAME}" >> "$RELEASE_NOTES_FILE"
+
+RELEASE_TITLE="release ${NEW_VERSION} : ${ARTIFACT_NAME}"
+
+GH_RELEASE_RESPONSE=$(gh release create --title "$RELEASE_TITLE" \
+                                        --notes-file "$RELEASE_NOTES_FILE" \
+                                        --target "$DEFAULT_BRANCH_NAME" \
+                                        "$NEW_VERSION" \
+                                        "${ARTIFACTS_DIR}/${ARTIFACT_NAME}" )
+
+GH_RELEASE_STATUS=$?
+
+
+if [ $GH_RELEASE_STATUS -ne 0 ] ; then
+
+    echo
+    echo "[ERROR] gh release create failed: $GH_RELEASE_STATUS"
+    echo "$GH_RELEASE_RESPONSE"
+    echo
+    exit 1
+
+fi
+
+echo
+echo "gh release create [OK]"
+echo "$GH_RELEASE_RESPONSE"
 echo
 
 
