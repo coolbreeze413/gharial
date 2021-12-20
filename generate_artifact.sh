@@ -102,10 +102,12 @@ export PATH="${GH_CLI_BIN_DIR_PATH}:${PATH}"
 # test TODO more
 TEST_GH_BIN_PATH=$(which gh)
 
-if [ "$TEST_GH_BIN_PATH" != "$GH_CLI_BIN_DIR_PATH" ] ; then
+if [ "$TEST_GH_BIN_PATH" != "$GH_CLI_BIN_DIR_PATH/gh" ] ; then
 
     echo
     echo "[ERROR] unexpected gh cli bin in path!"
+    echo "expected: $GH_CLI_BIN_DIR_PATH"
+    echo "     got: $TEST_GH_BIN_PATH"
     echo
     exit 1
 
@@ -209,7 +211,7 @@ echo
 #   REF: https://cli.github.com/manual/gh_pr_create
 
 PR_TITLE="[GHARIAL-AUTO] Add new artifact: ${ARTIFACT_NAME}"
-PR_BODY="PR for adding a new artifact.\na new line in the PR body\n"
+PR_BODY="PR for adding a new artifact."
 
 PR_URL=$(gh pr create --title "$PR_TITLE" \
              --body "$PR_BODY" \
