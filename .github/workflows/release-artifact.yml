@@ -1,0 +1,42 @@
+name: release-artifact-on-pr
+
+on:
+  - pull_request
+
+jobs:
+
+  release:
+    
+    name: release-artifact-job
+    
+    runs-on: ubuntu-20.04
+    
+    steps:
+
+      - name: check out repo
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # we need all history, not a shallow clone for the next step
+
+      - name: get changed files
+        run:  |
+          echo "before: ${{ github.event.before }}"
+          echo "after: ${{ github.event.after }}"
+          echo "CHANGED_FILES=$(git diff --name-only ${{ github.event.before }}..${{ github.event.after }})" >> $GITHUB_ENV
+
+      - name: list changed files
+        run:  |
+          echo "changed files:"
+          echo ${{ env.CHANGED_FILES }}
+
+      - name: get changed files in a specific directory
+        run:  |
+          echo "ARTIFACTS_CHANGES=$(git diff --name-only ${{ github.event.before }}..${{ github.event.after }} -- artifacts)" >> $GITHUB_ENV
+          echo "IS_ARTIFACTS_CHANGED=$(git diff --quiet ${{ github.event.before }}..${{ github.event.after }} -- artifacts)" >> $GITHUB_ENV
+
+      - name: list changed files in a specific directory
+        run:  |
+          echo "changed files:"
+          echo ${{ env.ARTIFACTS_CHANGES }}
+          echo ""
+          echo "are-there-changes-in-artifacts: ${{ env.IS_ARTIFACTS_CHANGED }}"
