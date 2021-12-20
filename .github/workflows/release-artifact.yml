@@ -25,9 +25,9 @@ jobs:
 
       - name: get changed files
         run:  |
-          echo "before: ${{ github.event.before }}"
-          echo "after: ${{ github.event.after }}"
-          echo "CHANGED_FILES=$(git diff --name-only ${{ github.event.before }}..${{ github.event.after }})" >> $GITHUB_ENV
+          echo "before: ${{ github.event.base.sha }}"
+          echo "after: ${{ github.event.head.sha }}"
+          echo "CHANGED_FILES=$(git diff --name-only ${{ github.event.base.sha }}..${{ github.event.head.sha }})" >> $GITHUB_ENV
 
       - name: list changed files
         run:  |
@@ -36,8 +36,8 @@ jobs:
 
       - name: get changed files in a specific directory
         run:  |
-          echo "ARTIFACTS_CHANGES=$(git diff --name-only ${{ github.event.before }}..${{ github.event.after }} -- artifacts)" >> $GITHUB_ENV
-          echo "IS_ARTIFACTS_CHANGED=$(git diff --quiet ${{ github.event.before }}..${{ github.event.after }} -- artifacts)" >> $GITHUB_ENV
+          echo "ARTIFACTS_CHANGES=$(git diff --name-only ${{ github.event.base.sha }}..${{ github.event.head.sha }} -- artifacts)" >> $GITHUB_ENV
+          echo "IS_ARTIFACTS_CHANGED=$(git diff --quiet ${{ github.event.base.sha }}..${{ github.event.head.sha }} -- artifacts)" >> $GITHUB_ENV
 
       - name: list changed files in a specific directory
         run:  |
