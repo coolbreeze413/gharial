@@ -417,6 +417,9 @@ echo "gh release create [OK]"
 echo "$GH_RELEASE_RESPONSE"
 echo
 
+# fetch the new tags after release:
+git fetch --tags origin
+
 
 #logout
 echo "Y" | gh auth logout --hostname github.com
