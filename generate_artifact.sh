@@ -93,25 +93,42 @@ if [ ! -d "$GH_LINUX_BIN_NAME" ] ; then
 
     tar -xf "${GH_LINUX_BIN_NAME}.tar.gz"
 
-    cd "$GH_LINUX_BIN_NAME/bin"
+fi
 
-    export PATH="${PWD}:${PATH}"
+# add to path:
+GH_CLI_BIN_DIR_PATH="${PWD}/$GH_LINUX_BIN_NAME/bin"
+export PATH="${GH_CLI_BIN_DIR_PATH}:${PATH}"
 
-    cd -
+# test TODO more
+TEST_GH_BIN_PATH=$(which gh)
+
+if [ "$TEST_GH_BIN_PATH" != "$GH_CLI_BIN_DIR_PATH" ] ; then
+
+    echo
+    echo "[ERROR] unexpected gh cli bin in path!"
+    echo
+    exit 1
 
 fi
 
-# test
 echo
-echo "gh: "
-which gh
 gh --version
 echo
 
+
 # login
 echo "$GH_CONFIG_TOKEN" | gh auth login --with-token
+GH_LOGIN_STATUS=$?
 
-# login ok? TODO
+if [ $GH_LOGIN_STATUS -ne 0 ] ; then
+
+    echo
+    echo "[ERROR] gh cli login using token failed: $GH_LOGIN_STATUS"
+    echo
+    exit 1
+
+fi
+
 
 # STEP 0: pull all remote repo changes in case we are running from an already cloned repo:
 git pull
@@ -191,6 +208,9 @@ echo
 # A: create PR using the CLI (needs extra gh cli installed)
 #   REF: https://cli.github.com/manual/gh_pr_create
 
+PR_TITLE="[GHARIAL-AUTO] Add new artifact: ${ARTIFACT_NAME}"
+PR_BODY="PR for adding a new artifact.\na new line in the PR body\n"
+
 PR_URL=$(gh pr create --title "$PR_TITLE" \
              --body "$PR_BODY" \
              --head "$PR_BRANCH_NAME" \
@@ -198,9 +218,19 @@ PR_URL=$(gh pr create --title "$PR_TITLE" \
              )
 
 GH_PR_STATUS=$?
+
+if [ $GH_PR_STATUS -ne 0 ] ; then
+
+    echo
+    echo "[ERROR] gh pr create failed: $GH_PR_STATUS"
+    echo
+    exit 1
+
+fi
+
 echo
-echo "GH_PR_STATUS=$GH_PR_STATUS"
-echo "PR_URL=$PR_URL"
+echo "gh pr created ok:"
+echo "    $PR_URL"
 echo
 
 ##########################################################################################
@@ -288,6 +318,27 @@ echo
 #     exit 1
 # fi
 ##########################################################################################
+
+
+# STEP 4: merge PR from the new branch to default
+MERGE_BODY="[GHARIAL-AUTO] automatically merging latest PR for artifact"
+
+GH_MERGE_RESPONSE=$(gh pr merge $PR_URL --auto --delete-branch --squash --body "$MERGE_BODY")
+GH_MERGE_STATUS=$?
+
+if [ $GH_MERGE_STATUS -ne 0 ] ; then
+
+    echo
+    echo "[ERROR] gh pr create failed: $GH_PR_STATUS"
+    echo
+    exit 1
+
+fi
+
+echo
+echo "gh merge ok:"
+echo "$GH_MERGE_RESPONSE"
+echo
 
 
 #logout
