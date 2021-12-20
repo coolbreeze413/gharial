@@ -1,0 +1,33 @@
+name: GHA Demo
+
+on: [push]
+
+jobs:
+
+  gha-demo-job:
+
+    runs-on: ubuntu-20.04
+    
+    steps:
+    
+    - name: step 1
+      run:  |
+        echo "event: ${{ github.event_name }}" |
+        echo "os: {{ runner.os }}" |
+        echo "branch: ${{ github.ref }}" |
+    
+    - name: step 2 checkout repo
+      uses: actions/checkout@v2
+    
+    - name: list files in repo
+      run:  |
+        ls ${{ github.workspace }}
+        pwd
+    
+    - name: check status
+      run: |
+        echo "status: ${{ job.status }}"
+
+
+
+
