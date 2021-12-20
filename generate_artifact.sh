@@ -107,6 +107,10 @@ which gh
 gh --version
 echo
 
+echo "$GH_CONFIG_TOKEN" | gh auth login --with-token
+
+gh auth logout
+
 exit 0
 
 # STEP 0: pull all remote repo changes in case we are running from an already cloned repo:
@@ -189,11 +193,7 @@ echo
 # B: create PR using a HTTP POST request
 #   REF: https://docs.github.com/en/rest/reference/pulls#create-a-pull-request
 #   B.1 : use curl to execute the HTTP POST (current approach)
-#   B.2 : use python, FUTURE TODO.
-#           an easier way would be to use a python script to generate the json, AND POST the request AND verify the response
-#           AND extract the GH PAT from the config file, assuming that we used the token while cloning the repo
-#           python3 generate_gh_pr --gh_pr_owner="" --gh_pr_repo="" --gh_pr_title="" --gh_pr_body="" --gh_pr_head="" gh_pr_base="" gh_pr_is_draft="" gh_pr_issue=""
-
+#   B.2 : use gh cli (or hub) to create the PR
 
 # curl POST request:
 # REF: https://gist.github.com/subfuzion/08c5d85437d5d4f00e58
