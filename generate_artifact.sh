@@ -387,7 +387,7 @@ echo "NEW_VERSION=$NEW_VERSION"
 # create release
 # release notes:
 RELEASE_NOTES_FILE="${PWD}/gh_release_changelog_tmp.md"
-touch $RELEASE_NOTES_FILE
+: > "$RELEASE_NOTES_FILE" # if file exists, empty contents, else create file all in one! REF: https://askubuntu.com/a/549672
 echo "placeholder notes content for notes or changelog in markdown format!!" >> "$RELEASE_NOTES_FILE"
 echo "blah blah notes for ${ARTIFACT_NAME}" >> "$RELEASE_NOTES_FILE"
 
