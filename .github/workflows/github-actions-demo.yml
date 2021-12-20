@@ -1,4 +1,4 @@
-name: GHA Demo
+name: gha-demo
 
 on: [push]
 
@@ -10,21 +10,24 @@ jobs:
     
     steps:
     
-    - name: step 1
+    - name: step 1 print a few variables
       run:  |
         echo "event: ${{ github.event_name }}"
         echo "os: ${{ runner.os }}"
         echo "branch: ${{ github.ref }}"
+        echo "action: ${{ github.action }}"
+        echo "actor: ${{ github.actor }}"
     
     - name: step 2 checkout repo
       uses: actions/checkout@v2
     
-    - name: list files in repo
+    - name: step 3 list files in repo
       run:  |
         ls ${{ github.workspace }}
         pwd
+        git tag
     
-    - name: check status
+    - name: step 4 check status
       run: |
         echo "status: ${{ job.status }}"
 
