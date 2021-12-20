@@ -12,7 +12,7 @@ jobs:
     
     - name: step 1
       run:  |
-        echo "event: ${{ github.event_name }}" |
+        echo "event: ${{ github.event_name }}"
         echo "os: ${{ runner.os }}"
         echo "branch: ${{ github.ref }}"
     
