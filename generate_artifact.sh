@@ -55,6 +55,59 @@ execute_cmd_spinner() {
     tput cnorm -- normal
 }
 
+# STEP -1: prerequisites
+# assuming we cloned the repo using a PAT, the token is stored in .git/config file in plaintext
+# what we want is the pattern: "url = https://TOKEN@github.com/OWNER/REPO[.git]"
+# using regex:
+regex_git_info_string="^.*url.*=.*https://(.+)@github.com/([^/]+)/(\S+)(\..*|\s+)"
+git_info_string=`cat .git/config`
+
+if [[ $git_info_string =~ $regex_git_info_string ]] ; then
+    #echo "${BASH_REMATCH[1]}" # token
+    #echo "${BASH_REMATCH[2]}" # username
+    #echo "${BASH_REMATCH[3]}" # repo or repo.git
+
+    GH_CONFIG_TOKEN=${BASH_REMATCH[1]}  # use the token from here
+    GH_CONFIG_OWNER=${BASH_REMATCH[2]}  # we don't use this
+    GH_CONFIG_REPO=${BASH_REMATCH[3]}   # we don't use this
+fi
+
+if [ -z "$GH_CONFIG_TOKEN" ] ; then
+    echo
+    echo "[ERROR] could not obtain PAT from local .git/config..."
+    echo "did you clone the repo using a PAT?"
+    echo "aborting."
+    echo
+    exit 1
+fi
+
+
+GH_LINUX_BIN_NAME="gh_2.3.0_linux_amd64"
+if [ ! -d "$GH_LINUX_BIN_NAME" ] ; then
+
+    if [ ! -f "${GH_LINUX_BIN_NAME}.tar.gz" ] ; then
+
+        wget "https://github.com/cli/cli/releases/download/v2.3.0/${GH_LINUX_BIN_NAME}.tar.gz"
+
+    fi
+
+    tar -xf "${GH_LINUX_BIN_NAME}.tar.gz"
+
+    cd "$GH_LINUX_BIN_NAME/bin"
+
+    export PATH="${PWD}:${PATH}"
+
+    cd -
+
+fi
+
+echo
+echo "gh: "
+which gh
+gh --version
+echo
+
+exit 0
 
 # STEP 0: pull all remote repo changes in case we are running from an already cloned repo:
 git pull
@@ -107,15 +160,27 @@ echo "      branch: ${PR_BRANCH_NAME}"
 echo "    artifact: ${ARTIFACTS_DIR}/${ARTIFACT_NAME}"
 echo
 
+echo
+echo "[-- 01 --]"
 git checkout -b "$PR_BRANCH_NAME"
+echo "[-- 02 --]"
 git status
+echo "[-- 03 --]"
 git add "${ARTIFACTS_DIR}/${ARTIFACT_NAME}"
+echo "[-- 04 --]"
 git status
+echo "[-- 05 --]"
 git commit -m "add new artifact ${ARTIFACT_NAME}"
+echo "[-- 06 --]"
 git status
+echo "[-- 07 --]"
 git push -u origin "$PR_BRANCH_NAME"
+echo "[-- 08 --]"
 git checkout "$DEFAULT_BRANCH_NAME"
+echo "[-- 09 --]"
 git pull
+echo "[-- -- --]"
+echo
 
 
 # STEP 3: create PR for the new branch once it is upstream
@@ -158,35 +223,10 @@ GH_PR_IS_DRAFT="false" # "true" if we want it to be a draft PR
 GH_PR_ISSUE="" # integer number referencing an issue to link PR with an issue
 
 
-# assuming we cloned the repo using a PAT, the token is stored in .git/config file in plaintext
-# what we want is the pattern: "url = https://TOKEN@github.com/OWNER/REPO[.git]"
-# using regex:
-regex_git_info_string="^.*url.*=.*https://(.+)@github.com/([^/]+)/(\S+)(\..*|\s+)"
-git_info_string=`cat .git/config`
-
-if [[ $git_info_string =~ $regex_git_info_string ]] ; then
-    #echo "${BASH_REMATCH[1]}" # token
-    #echo "${BASH_REMATCH[2]}" # username
-    #echo "${BASH_REMATCH[3]}" # repo or repo.git
-
-    GH_CONFIG_TOKEN=${BASH_REMATCH[1]}  # use the token from here
-    GH_CONFIG_OWNER=${BASH_REMATCH[2]}  # we don't use this
-    GH_CONFIG_REPO=${BASH_REMATCH[3]}   # we don't use this
-fi
-
-if [ -z "$GH_CONFIG_TOKEN" ] ; then
-    echo
-    echo "[ERROR] could not obtain PAT from local .git/config..."
-    echo "did you clone the repo using a PAT?"
-    echo "aborting PR step - create the PR manually..."
-    echo
-    exit 1
-fi
-
 # use the github token for authorization in the curl POST request.
 
 echo
-echo "create PR using HTTP POST"
+echo "obtained PAT, create PR using HTTP POST"
 echo
 
 RESPONSE=$(curl \
@@ -214,6 +254,7 @@ fi
 
 # extract the actual reponse only:
 ACTUAL_RESPONSE=$(echo "$RESPONSE" | sed -e 's/^GHARIAL_PR_HTTP_STATUS:.*//')
+# store the curl response for debugging (add to .gitignore!)
 echo "$ACTUAL_RESPONSE" > curl_response.debug.log
 
 # extract the status code:
