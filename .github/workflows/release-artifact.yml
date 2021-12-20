@@ -18,6 +18,11 @@ jobs:
         with:
           fetch-depth: 0 # we need all history, not a shallow clone for the next step
 
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+
       - name: get changed files
         run:  |
           echo "before: ${{ github.event.before }}"
