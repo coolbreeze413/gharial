@@ -14,14 +14,14 @@ jobs:
       run:  |
         echo "event: ${{ github.event_name }}" |
         echo "os: {{ runner.os }}" |
-        echo "branch: ${{ github.ref }}" |
+        echo "branch: ${{ github.ref }}"
     
     - name: step 2 checkout repo
       uses: actions/checkout@v2
     
     - name: list files in repo
       run:  |
-        ls ${{ github.workspace }}
+        ls ${{ github.workspace }} |
         pwd
     
     - name: check status
