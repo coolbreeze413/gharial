@@ -148,6 +148,8 @@ jobs:
           gh release create --title "$RELEASE_TITLE" --target master "$NEW_VERSION" "${{ env.ARTIFACTS_CHANGES }}"
           GH_RELEASE_STATUS=$?
           echo "GH_RELEASE_STATUS=$GH_RELEASE_STATUS"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
 
