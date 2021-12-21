@@ -54,6 +54,18 @@ jobs:
           echo ""
           echo "are-there-changes-in-artifacts: ${{ env.IS_ARTIFACTS_CHANGED }}"
 
+
+      - name: approve the review if there are artifact changes
+        if: ${{ env.ARTIFACTS_CHANGES }} == "yes"
+        shell: bash
+        run:  |
+          echo "artifact has changes, approve the PR."
+          gh pr review --approve --comment --body "[GHARIAL-GHA] auto approve"
+          GH_PR_REVIEW_STATUS=$?
+          echo "GH_PR_REVIEW_STATUS=$GH_PR_REVIEW_STATUS"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       # use explicit gh auth login...
       # - name: merge the PR if there are artifact changes
       #   if: ${{ env.ARTIFACTS_CHANGES }} == "yes"
