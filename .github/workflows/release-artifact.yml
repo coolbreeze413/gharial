@@ -60,12 +60,15 @@ jobs:
         shell: bash
         run:  |
           echo "artifact has changes, approve the PR."
+          gh pr checkout ${{ github.event.pull_request.number }}
+          GH_PR_CHECKOUT_STATUS=$?
+          echo "GH_PR_CHECKOUT_STATUS=$GH_PR_CHECKOUT_STATUS"
           gh pr review --comment --body "[GHARIAL-GHA] auto approve"
-          GH_PR_REVIEW_STATUS=$?
-          echo "GH_PR_REVIEW_STATUS=$GH_PR_REVIEW_STATUS"
+          GH_PR_REVIEWC_STATUS=$?
+          echo "GH_PR_REVIEWC_STATUS=$GH_PR_REVIEWC_STATUS"
           gh pr review --approve
-          GH_PR_REVIEW_STATUS=$?
-          echo "GH_PR_REVIEW_STATUS=$GH_PR_REVIEW_STATUS"
+          GH_PR_REVIEWA_STATUS=$?
+          echo "GH_PR_REVIEWA_STATUS=$GH_PR_REVIEWA_STATUS"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
