@@ -60,7 +60,10 @@ jobs:
         shell: bash
         run:  |
           echo "artifact has changes, approve the PR."
-          gh pr review --approve --comment --body "[GHARIAL-GHA] auto approve"
+          gh pr review --comment --body "[GHARIAL-GHA] auto approve"
+          GH_PR_REVIEW_STATUS=$?
+          echo "GH_PR_REVIEW_STATUS=$GH_PR_REVIEW_STATUS"
+          gh pr review --approve
           GH_PR_REVIEW_STATUS=$?
           echo "GH_PR_REVIEW_STATUS=$GH_PR_REVIEW_STATUS"
         env:
