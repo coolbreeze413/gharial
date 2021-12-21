@@ -61,5 +61,6 @@ jobs:
           PR_URL=${{ github.event.pull_request.html_url }}
           echo "PR_URL=$PR_URL"
           GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
+          echo "$GITHUB_TOKEN" | gh auth login --with-token
           gh pr merge $PR_URL --auto --delete-branch --squash --body "$MERGE_BODY"
 
