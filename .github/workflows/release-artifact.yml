@@ -108,3 +108,46 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
+      - name: create a release with the artifact added
+        if: ${{ env.ARTIFACTS_CHANGES }} == "yes"
+        shell: bash
+        run:  |
+          echo "create a release after merging the PR"
+          git checkout master
+          CURRENT_VERSION=`git describe --abbrev=0 --tags 2>/dev/null`
+          if [ -z $CURRENT_VERSION ] ; then
+              
+              CURRENT_VERSION="v0.0.0"
+              NEW_VERSION="v1.0.0"
+
+          else
+
+              # remove "v"
+              CURRENT_VERSION_PARTS=$(echo "$CURRENT_VERSION" | sed 's/v//')
+              # replace . with space so can split into an array
+              CURRENT_VERSION_PARTS=(${CURRENT_VERSION_PARTS//./ })
+
+              # get MAJOR, MINOR, PATCH
+              V_MAJOR=${CURRENT_VERSION_PARTS[0]}
+              V_MINOR=${CURRENT_VERSION_PARTS[1]}
+              V_PATCH=${CURRENT_VERSION_PARTS[2]}
+
+              # use custom logic to determine new MAJOR/MINOR/PATCH version numbers:
+              # current we use a simple "increment minor"
+              V_MINOR=$((V_MINOR+1))
+
+              # remember to add "v"
+              NEW_VERSION="v${V_MAJOR}.${V_MINOR}.${V_PATCH}"
+
+          fi
+
+          echo "CURRENT_VERSION=$CURRENT_VERSION"
+          echo "NEW_VERSION=$NEW_VERSION"
+
+          RELEASE_TITLE="[GHARIAL-GHA] release ${NEW_VERSION}"
+          gh release create --title "$RELEASE_TITLE" --target master "$NEW_VERSION" "${{ env.ARTIFACTS_CHANGES }}"
+          GH_RELEASE_STATUS=$?
+          echo "GH_RELEASE_STATUS=$GH_RELEASE_STATUS"
+
+
+

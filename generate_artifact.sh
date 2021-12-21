@@ -193,7 +193,7 @@ git add "${ARTIFACTS_DIR}/${ARTIFACT_NAME}"
 echo "[-- 04 --]"
 git status
 echo "[-- 05 --]"
-git commit -m "add new artifact ${ARTIFACT_NAME}"
+git commit -m "[GHARIAL-AUTO] add new artifact ${ARTIFACT_NAME}"
 echo "[-- 06 --]"
 git status
 echo "[-- 07 --]"

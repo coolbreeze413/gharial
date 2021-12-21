@@ -15,5 +15,7 @@ gha experiments
 
 
 ## [2] script generate, create PR/gha process PR, merge PR, create RELEASE
-- gha processes PR, if it is for artifact, auto-merges PR.
-- gha creates release, with only artifact and no source zip/tarball
+- gha processes PR - checks for changes in a specific directory (artifacts)
+- if yes, gha adds a comment, and approves review for the PR
+- gha auto merges PR with squash
+- gha creates a release from master and uploads artifact into release
