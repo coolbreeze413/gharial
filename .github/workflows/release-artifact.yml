@@ -52,7 +52,7 @@ jobs:
           echo "are-there-changes-in-artifacts: ${{ env.IS_ARTIFACTS_CHANGED }}"
 
       - name: merge the PR if there are artifact changes
-        if: env.ARTIFACTS_CHANGES == "yes"
+        if: ${{ env.ARTIFACTS_CHANGES }} == "yes"
         shell: bash
         run:  |
           echo "artifact has changes, merge the PR."
