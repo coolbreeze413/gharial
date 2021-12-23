@@ -45,7 +45,8 @@ jobs:
       - name: get head rev of submodule in our repo
         run:  |
           cd ${{ env.REPO__SUBMODULE_PATH }}
-          env.REPO__SUBMODULE_SHA1=$(git rev-parse HEAD)
+          echo "${PWD}"
+          echo "REPO__SUBMODULE_SHA1=$(git rev-parse HEAD)"  >> $GITHUB_ENV
           echo "env.REPO__SUBMODULE_SHA1=${{ env.REPO__SUBMODULE_SHA1 }}"
           cd -
 
@@ -61,7 +62,7 @@ jobs:
       - name: get head rev of the submodule repo
         run:  |
           cd ${{ env.SUBMODULE_REPO__CHECKOUT_PATH }}
-          env.SUBMODULE_REPO__SHA1=$(git rev-parse HEAD)
+          echo "SUBMODULE_REPO__SHA1=$(git rev-parse HEAD)" >> $GITHUB_ENV
           echo "env.SUBMODULE_REPO__SHA1=${{ env.SUBMODULE_REPO__SHA1 }}"
           cd -
 
@@ -69,7 +70,7 @@ jobs:
       - name: check if submodule repo has new changes
         if:  ${{ env.SUBMODULE_REPO__SHA1 }} != ${{ env.REPO__SUBMODULE_SHA1 }}
         run: |
-          env.SUBDMODULE_REPO__HAS_NEW_CHANGES='yes'
+          echo "SUBDMODULE_REPO__HAS_NEW_CHANGES='yes'" >> $GITHUB_ENV
           echo "env.SUBDMODULE_REPO__HAS_NEW_CHANGES=${{ env.SUBDMODULE_REPO__HAS_NEW_CHANGES }}"
 
 
@@ -78,7 +79,7 @@ jobs:
         if: ${{ env.SUBDMODULE_REPO__HAS_NEW_CHANGES }} == 'yes'
         run: |
           cd ${{ env.SUBMODULE_REPO__CHECKOUT_PATH }}
-          env.SUBDMODULE_REPO__HAS_NEW_CHANGES_IN_CHECK_DIR=$(git diff --quiet ${{ env.REPO__SUBMODULE_SHA1 }}..${{ env.SUBMODULE_REPO__SHA1 }} -- ${{ env.SUBMODULE_REPO__CHECK_DIR }} || echo yes)
+          echo "SUBDMODULE_REPO__HAS_NEW_CHANGES_IN_CHECK_DIR=$(git diff --quiet ${{ env.REPO__SUBMODULE_SHA1 }}..${{ env.SUBMODULE_REPO__SHA1 }} -- ${{ env.SUBMODULE_REPO__CHECK_DIR }} || echo yes)" >> $GITHUB_ENV
           echo "env.SUBDMODULE_REPO__HAS_NEW_CHANGES_IN_CHECK_DIR=${{ env.SUBDMODULE_REPO__HAS_NEW_CHANGES_IN_CHECK_DIR }}"
 
           
