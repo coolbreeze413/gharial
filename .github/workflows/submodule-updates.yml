@@ -46,7 +46,8 @@ jobs:
         run:  |
           cd ${{ env.REPO__SUBMODULE_PATH }}
           echo "repo->submodule: ${PWD}"
-          echo "REPO__SUBMODULE_SHA1=$(git rev-parse HEAD)"  >> $GITHUB_ENV
+          REPO__SUBMODULE_SHA1=$(git rev-parse HEAD)
+          echo "REPO__SUBMODULE_SHA1=$REPO__SUBMODULE_SHA1" >> $GITHUB_ENV
           echo "REPO__SUBMODULE_SHA1=$REPO__SUBMODULE_SHA1"
           cd -
 
@@ -63,7 +64,8 @@ jobs:
         run:  |
           cd ${{ env.SUBMODULE_REPO__CHECKOUT_PATH }}
           echo "submodule's repo : ${PWD}"
-          echo "SUBMODULE_REPO__SHA1=$(git rev-parse HEAD)" >> $GITHUB_ENV
+          SUBMODULE_REPO__SHA1=$(git rev-parse HEAD)
+          echo "SUBMODULE_REPO__SHA1=$SUBMODULE_REPO__SHA1" >> $GITHUB_ENV
           echo "SUBMODULE_REPO__SHA1=$SUBMODULE_REPO__SHA1"
           cd -
 
@@ -71,7 +73,8 @@ jobs:
       - name: check if submodule repo has new changes
         if:  ${{ env.SUBMODULE_REPO__SHA1 }} != ${{ env.REPO__SUBMODULE_SHA1 }}
         run: |
-          echo "SUBDMODULE_REPO__HAS_NEW_CHANGES='yes'" >> $GITHUB_ENV
+          SUBDMODULE_REPO__HAS_NEW_CHANGES="yes"
+          echo "SUBDMODULE_REPO__HAS_NEW_CHANGES=$SUBDMODULE_REPO__HAS_NEW_CHANGES" >> $GITHUB_ENV
           echo "SUBDMODULE_REPO__HAS_NEW_CHANGES=$SUBDMODULE_REPO__HAS_NEW_CHANGES"
 
 
@@ -81,11 +84,11 @@ jobs:
         run: |
           cd ${{ env.SUBMODULE_REPO__CHECKOUT_PATH }}
           echo "submodule's repo : ${PWD}"
-          git log --oneline
-          CHANGES=git diff --name-only ${{ env.REPO__SUBMODULE_SHA1 }}..${{ env.SUBMODULE_REPO__SHA1 }}
+          CHANGES=$(git diff --name-only ${{ env.REPO__SUBMODULE_SHA1 }}..${{ env.SUBMODULE_REPO__SHA1 }})
           echo "changes:"
           echo "$CHANGES"
-          echo "SUBDMODULE_REPO__HAS_NEW_CHANGES_IN_CHECK_DIR=$(git diff --quiet ${{ env.REPO__SUBMODULE_SHA1 }}..${{ env.SUBMODULE_REPO__SHA1 }} -- ${{ env.SUBMODULE_REPO__CHECK_DIR }} || echo yes)" >> $GITHUB_ENV
+          SUBDMODULE_REPO__HAS_NEW_CHANGES_IN_CHECK_DIR=$(git diff --quiet ${{ env.REPO__SUBMODULE_SHA1 }}..${{ env.SUBMODULE_REPO__SHA1 }} -- ${{ env.SUBMODULE_REPO__CHECK_DIR }} || echo yes)
+          echo "SUBDMODULE_REPO__HAS_NEW_CHANGES_IN_CHECK_DIR=$SUBDMODULE_REPO__HAS_NEW_CHANGES_IN_CHECK_DIR" >> $GITHUB_ENV
           echo "SUBDMODULE_REPO__HAS_NEW_CHANGES_IN_CHECK_DIR=$SUBDMODULE_REPO__HAS_NEW_CHANGES_IN_CHECK_DIR"
 
           
