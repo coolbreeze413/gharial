@@ -109,14 +109,14 @@ jobs:
 
       - name: create PR if changes in specific dir of submodule
         if: ${{ env.SUBDMODULE_REPO__HAS_NEW_CHANGES_IN_CHECK_DIR }} == 'yes'
-        run:  |
-          git config user.name "GHARIAL"
-          git config user.email "<>"
+        run:  |          
           REPO__SUBMODULE_UPDATE_PR_BRANCH_NAME="GHARIAL-${{ env.SUBMODULE_REPO__NAME }}-${{ env.SUBMODULE_REPO__SHA1 }}"
           REPO__SUBMODULE_UPDATE_PR_TITLE="[GHARIAL] bump submodule ${{ env.SUBMODULE_REPO__NAME }} from ${{ env.REPO__SUBMODULE_SHA1 }} to ${{ env.SUBMODULE_REPO__SHA1 }}"
           cd ${{ env.REPO__CHECKOUT_PATH }}
           git checkout ${{ env.REPO__TARGET_BRANCH }}
           git pull
+          git config user.name "GHARIAL"
+          git config user.email "<>"
           git checkout -b "$REPO__SUBMODULE_UPDATE_PR_BRANCH_NAME"
           cd ${{ env.REPO__SUBMODULE__REL_PATH }}
           git checkout ${{ env.SUBMODULE_REPO__TARGET_BRANCH }}
