@@ -116,7 +116,7 @@ jobs:
           git checkout ${{ env.REPO__TARGET_BRANCH }}
           git pull
           git config user.name "coolbreeze413"
-          git config user.email "<>"
+          git config user.email ""
           git checkout -b "$REPO__SUBMODULE_UPDATE_PR_BRANCH_NAME"
           cd ${{ env.REPO__SUBMODULE__REL_PATH }}
           git checkout ${{ env.SUBMODULE_REPO__TARGET_BRANCH }}
