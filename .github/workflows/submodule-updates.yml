@@ -78,7 +78,7 @@ jobs:
         if: ${{ env.SUBDMODULE_REPO__HAS_NEW_CHANGES }} == 'yes'
         run: |
           cd ${{ env.SUBMODULE_REPO__CHECKOUT_PATH }}
-          env.SUBDMODULE_REPO__HAS_NEW_CHANGES_IN_CHECK_DIR=$(git diff --quiet ${{ env.REPO__SUBMODULE_SHA1 }}..${{ env.SUBMODULE_REPO__SHA1 }} -- ${{ SUBMODULE_REPO__CHECK_DIR }} || echo yes)
+          env.SUBDMODULE_REPO__HAS_NEW_CHANGES_IN_CHECK_DIR=$(git diff --quiet ${{ env.REPO__SUBMODULE_SHA1 }}..${{ env.SUBMODULE_REPO__SHA1 }} -- ${{ env.SUBMODULE_REPO__CHECK_DIR }} || echo yes)
           echo "env.SUBDMODULE_REPO__HAS_NEW_CHANGES_IN_CHECK_DIR=${{ env.SUBDMODULE_REPO__HAS_NEW_CHANGES_IN_CHECK_DIR }}"
 
           
