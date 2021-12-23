@@ -43,7 +43,7 @@ jobs:
       - name: check out repo
         uses: actions/checkout@v2
         with:
-          ref: ${{ REPO__TARGET_BRANCH }}
+          ref: ${{ env.REPO__TARGET_BRANCH }}
           submodules: 'true'
           path: ./${{ env.REPO__CHECKOUT_PATH }}
           fetch-depth: 1 # we only need a shallow clone to get the submodule revision
@@ -51,7 +51,7 @@ jobs:
       # get the revision of the submodule in our repo
       - name: get head rev of submodule in our repo
         run:  |
-          cd "${{ REPO__CHECKOUT_PATH }}/${{ env.REPO__SUBMODULE__REL_PATH }}"
+          cd "${{ env.REPO__CHECKOUT_PATH }}/${{ env.REPO__SUBMODULE__REL_PATH }}"
           echo "repo->submodule: ${PWD}"
           REPO__SUBMODULE_SHA1=$(git rev-parse --short HEAD)
           echo "REPO__SUBMODULE_SHA1=$REPO__SUBMODULE_SHA1" >> $GITHUB_ENV
@@ -62,7 +62,7 @@ jobs:
       - name: checkout submodule repo
         uses: actions/checkout@v2
         with:
-          repository: ${{ SUBMODULE_REPO__OWNER }}/${{ SUBMODULE_REPO__NAME }}
+          repository: ${{ env.SUBMODULE_REPO__OWNER }}/${{ env.SUBMODULE_REPO__NAME }}
           path: ./${{ env.SUBMODULE_REPO__CHECKOUT_PATH }}
           fetch-depth: 0 # we need all history, not a shallow clone for checking changes
 
@@ -110,8 +110,8 @@ jobs:
       - name: create PR if changes in specific dir of submodule
         if: ${{ env.SUBDMODULE_REPO__HAS_NEW_CHANGES_IN_CHECK_DIR }} == 'yes'
         run:  |
-          REPO__SUBMODULE_UPDATE_PR_BRANCH_NAME="GHARIAL-${{ SUBMODULE_REPO__NAME }}-${{ env.SUBMODULE_REPO__SHA1 }}"
-          REPO__SUBMODULE_UPDATE_PR_TITLE="[GHARIAL] bump submodule ${{ SUBMODULE_REPO__NAME }} from ${{ env.REPO__SUBMODULE_SHA1 }} to ${{ env.SUBMODULE_REPO__SHA1 }}"
+          REPO__SUBMODULE_UPDATE_PR_BRANCH_NAME="GHARIAL-${{ env.SUBMODULE_REPO__NAME }}-${{ env.SUBMODULE_REPO__SHA1 }}"
+          REPO__SUBMODULE_UPDATE_PR_TITLE="[GHARIAL] bump submodule ${{ env.SUBMODULE_REPO__NAME }} from ${{ env.REPO__SUBMODULE_SHA1 }} to ${{ env.SUBMODULE_REPO__SHA1 }}"
           cd ${{ env.SUBMODULE_REPO__CHECKOUT_PATH }}
           git checkout ${{ env.REPO__TARGET_BRANCH }}
           git checkout -b "$REPO__SUBMODULE_UPDATE_PR_BRANCH_NAME"
