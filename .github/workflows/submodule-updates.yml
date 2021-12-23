@@ -1,0 +1,86 @@
+name: submodule-updates
+
+on:
+  schedule:
+  # * is a special character in YAML so you have to quote this string
+  # https://crontab.guru/#5_*_*_*_*
+    - cron: '5 * * * *'
+
+
+jobs:
+
+  check-submodules:
+
+    name: check-submodules-job
+
+    runs-on: ubuntu-latest
+
+    env:
+
+      REPO__CHECKOUT_PATH: 'gharial'
+      REPO__SUBMODULE_PATH: 'gharial/dependabot_sub_a'
+      REPO__SUBMODULE_SHA1: ''
+
+      SUBMODULE_REPO__CHECKOUT_PATH: 'dependabot_sub_a'
+      SUBMODULE_REPO__SHA1: ''
+      SUBMODULE_REPO__CHECK_DIR: 'interesting_dir'
+
+      SUBDMODULE_REPO__HAS_NEW_CHANGES: 'no'
+      SUBDMODULE_REPO__HAS_NEW_CHANGES_IN_CHECK_DIR: 'no'
+
+
+
+    steps:
+
+      # checkout our repo
+      - name: check out repo
+        uses: actions/checkout@v2
+        with:
+          submodules: 'true'
+          path: ./${{ env.REPO__CHECKOUT_PATH }}
+          fetch-depth: 1 # we need all history, not a shallow clone for the next step
+
+      # get the revision of the submodule in our repo
+      - name: get head rev of submodule in our repo
+      - run:  |
+          cd ${{ env.REPO__SUBMODULE_PATH }}
+          env.REPO__SUBMODULE_SHA1=$(git rev-parse HEAD)
+          echo "env.REPO__SUBMODULE_SHA1=${{ env.REPO__SUBMODULE_SHA1 }}"
+          cd -
+
+      # checkout the submodule repo
+      - name: checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: coolbreeze413/dependabot_sub_a
+          path: ./${{ env.SUBMODULE_REPO__CHECKOUT_PATH }}
+          fetch-depth: 1
+
+      # get the revision of the submodule repo's HEAD
+      - name: get head rev of the submodule repo
+        run:  |
+          cd ${{ env.SUBMODULE_REPO__CHECKOUT_PATH }}
+          env.SUBMODULE_REPO__SHA1=$(git rev-parse HEAD)
+          echo "env.SUBMODULE_REPO__SHA1=${{ env.SUBMODULE_REPO__SHA1 }}"
+          cd -
+
+      # are there any differences between submodule repo HEAD and our repo submodule rev
+      - name: check if submodule repo has new changes
+        if:  ${{ env.SUBMODULE_REPO__SHA1 }} != ${{ env.REPO__SUBMODULE_SHA1 }}
+        run: |
+          env.SUBDMODULE_REPO__HAS_NEW_CHANGES='yes'
+          echo "env.SUBDMODULE_REPO__HAS_NEW_CHANGES=${{ env.SUBDMODULE_REPO__HAS_NEW_CHANGES }}"
+
+
+      # are there differences in a specific dir in the submodule repo
+      - name: check if there are changes in the specific dir that we are looking for
+        if: ${{ env.SUBDMODULE_REPO__HAS_NEW_CHANGES }} == 'yes'
+        run: |
+          cd ${{ env.SUBMODULE_REPO__CHECKOUT_PATH }}
+          env.SUBDMODULE_REPO__HAS_NEW_CHANGES_IN_CHECK_DIR=$(git diff --quiet ${{ env.REPO__SUBMODULE_SHA1 }}..${{ env.SUBMODULE_REPO__SHA1 }} -- ${{ SUBMODULE_REPO__CHECK_DIR }} || echo yes)
+          echo "env.SUBDMODULE_REPO__HAS_NEW_CHANGES_IN_CHECK_DIR=${{ env.SUBDMODULE_REPO__HAS_NEW_CHANGES_IN_CHECK_DIR }}"
+
+          
+
+
+
