@@ -39,15 +39,15 @@ jobs:
         with:
           submodules: 'true'
           path: ./${{ env.REPO__CHECKOUT_PATH }}
-          fetch-depth: 1 # we need all history, not a shallow clone for the next step
+          fetch-depth: 1 # we only need a shallow clone to get the submodule revision
 
       # get the revision of the submodule in our repo
       - name: get head rev of submodule in our repo
         run:  |
           cd ${{ env.REPO__SUBMODULE_PATH }}
-          echo "${PWD}"
+          echo "repo->submodule: ${PWD}"
           echo "REPO__SUBMODULE_SHA1=$(git rev-parse HEAD)"  >> $GITHUB_ENV
-          echo "env.REPO__SUBMODULE_SHA1=${{ env.REPO__SUBMODULE_SHA1 }}"
+          echo "REPO__SUBMODULE_SHA1=$REPO__SUBMODULE_SHA1"
           cd -
 
       # checkout the submodule repo
@@ -56,14 +56,15 @@ jobs:
         with:
           repository: coolbreeze413/dependabot_sub_a
           path: ./${{ env.SUBMODULE_REPO__CHECKOUT_PATH }}
-          fetch-depth: 1
+          fetch-depth: 0 # we need all history, not a shallow clone for checking changes
 
       # get the revision of the submodule repo's HEAD
       - name: get head rev of the submodule repo
         run:  |
           cd ${{ env.SUBMODULE_REPO__CHECKOUT_PATH }}
+          echo "submodule's repo : ${PWD}"
           echo "SUBMODULE_REPO__SHA1=$(git rev-parse HEAD)" >> $GITHUB_ENV
-          echo "env.SUBMODULE_REPO__SHA1=${{ env.SUBMODULE_REPO__SHA1 }}"
+          echo "SUBMODULE_REPO__SHA1=$SUBMODULE_REPO__SHA1"
           cd -
 
       # are there any differences between submodule repo HEAD and our repo submodule rev
@@ -71,7 +72,7 @@ jobs:
         if:  ${{ env.SUBMODULE_REPO__SHA1 }} != ${{ env.REPO__SUBMODULE_SHA1 }}
         run: |
           echo "SUBDMODULE_REPO__HAS_NEW_CHANGES='yes'" >> $GITHUB_ENV
-          echo "env.SUBDMODULE_REPO__HAS_NEW_CHANGES=${{ env.SUBDMODULE_REPO__HAS_NEW_CHANGES }}"
+          echo "SUBDMODULE_REPO__HAS_NEW_CHANGES=$SUBDMODULE_REPO__HAS_NEW_CHANGES"
 
 
       # are there differences in a specific dir in the submodule repo
@@ -79,8 +80,13 @@ jobs:
         if: ${{ env.SUBDMODULE_REPO__HAS_NEW_CHANGES }} == 'yes'
         run: |
           cd ${{ env.SUBMODULE_REPO__CHECKOUT_PATH }}
+          echo "submodule's repo : ${PWD}"
+          git log --oneline
+          CHANGES=git diff --name-only ${{ env.REPO__SUBMODULE_SHA1 }}..${{ env.SUBMODULE_REPO__SHA1 }}
+          echo "changes:"
+          echo "$CHANGES"
           echo "SUBDMODULE_REPO__HAS_NEW_CHANGES_IN_CHECK_DIR=$(git diff --quiet ${{ env.REPO__SUBMODULE_SHA1 }}..${{ env.SUBMODULE_REPO__SHA1 }} -- ${{ env.SUBMODULE_REPO__CHECK_DIR }} || echo yes)" >> $GITHUB_ENV
-          echo "env.SUBDMODULE_REPO__HAS_NEW_CHANGES_IN_CHECK_DIR=${{ env.SUBDMODULE_REPO__HAS_NEW_CHANGES_IN_CHECK_DIR }}"
+          echo "SUBDMODULE_REPO__HAS_NEW_CHANGES_IN_CHECK_DIR=$SUBDMODULE_REPO__HAS_NEW_CHANGES_IN_CHECK_DIR"
 
           
 
