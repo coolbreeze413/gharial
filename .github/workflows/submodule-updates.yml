@@ -1,10 +1,11 @@
 name: submodule-updates
 
 on:
-  schedule:
+  #schedule:
   # * is a special character in YAML so you have to quote this string
   # https://crontab.guru/#5_*_*_*_*
-    - cron: '5 * * * *'
+  #  - cron: '5 * * * *'
+  - push
 
 
 jobs:
