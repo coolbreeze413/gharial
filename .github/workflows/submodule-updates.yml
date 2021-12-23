@@ -42,7 +42,7 @@ jobs:
 
       # get the revision of the submodule in our repo
       - name: get head rev of submodule in our repo
-      - run:  |
+        run:  |
           cd ${{ env.REPO__SUBMODULE_PATH }}
           env.REPO__SUBMODULE_SHA1=$(git rev-parse HEAD)
           echo "env.REPO__SUBMODULE_SHA1=${{ env.REPO__SUBMODULE_SHA1 }}"
