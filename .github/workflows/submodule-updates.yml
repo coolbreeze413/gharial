@@ -107,9 +107,9 @@ jobs:
         run:  |
           cd ${{ env.REPO__CHECKOUT_PATH }}
           REPO__SUBMODULE_UPDATE_PR_TITLE="[GHARIAL] bump submodule ${{ env.SUBMODULE_REPO__NAME }} from ${{ env.REPO__SUBMODULE_SHA1 }} to ${{ env.SUBMODULE_REPO__SHA1 }}"
-          PR_NUM=$(gh pr list --search "$REPO__SUBMODULE_UPDATE_PR_TITLE" --state open --json number --jq '.[] | .number')
-          if [ ! -z $PR_NUM ] ; then
-            echo "PR already exists for the same submodule update: $PR_NUM"
+          PR_URL=$(gh pr list --search "$REPO__SUBMODULE_UPDATE_PR_TITLE" --state open --json url --jq '.[] | .url')
+          if [ ! -z $PR_URL ] ; then
+            echo "PR already exists for the same submodule update: $PR_URL"
           else
             REPO__SUBMODULE_UPDATE_PR_CREATE='yes'
             echo "REPO__SUBMODULE_UPDATE_PR_CREATE=$REPO__SUBMODULE_UPDATE_PR_CREATE" >> $GITHUB_ENV
