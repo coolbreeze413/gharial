@@ -125,6 +125,7 @@ jobs:
               echo "REPO__SUBMODULE_UPDATE_PR_SUPERSEDE=$REPO__SUBMODULE_UPDATE_PR_SUPERSEDE" >> $GITHUB_ENV
               REPO__SUBMODULE_UPDATE_PR_PREV_URL=$PR_URL
               echo "REPO__SUBMODULE_UPDATE_PR_PREV_URL=$REPO__SUBMODULE_UPDATE_PR_PREV_URL" >> $GITHUB_ENV
+            fi
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
