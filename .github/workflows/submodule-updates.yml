@@ -98,6 +98,9 @@ jobs:
           echo "SUBDMODULE_REPO__HAS_NEW_CHANGES_IN_CHECK_DIR=$SUBDMODULE_REPO__HAS_NEW_CHANGES_IN_CHECK_DIR" >> $GITHUB_ENV
           echo "SUBDMODULE_REPO__HAS_NEW_CHANGES_IN_CHECK_DIR=$SUBDMODULE_REPO__HAS_NEW_CHANGES_IN_CHECK_DIR"
 
+      # check if there is already a PR with the same change pending?
+      # check if there is a PR for an older revision, if so supersede with a new PR.
+
       # if we have the interesting differences, create a PR with submodule updates
       - name: full checkout of repo if changes in specific dir of submodule to create PR
         if: ${{ env.SUBDMODULE_REPO__HAS_NEW_CHANGES_IN_CHECK_DIR }} == 'yes'
@@ -109,7 +112,8 @@ jobs:
 
       - name: create PR if changes in specific dir of submodule
         if: ${{ env.SUBDMODULE_REPO__HAS_NEW_CHANGES_IN_CHECK_DIR }} == 'yes'
-        run:  |          
+        run:  |
+          echo "${{ env.SUBDMODULE_REPO__HAS_NEW_CHANGES_IN_CHECK_DIR }}"
           REPO__SUBMODULE_UPDATE_PR_BRANCH_NAME="GHARIAL-${{ env.SUBMODULE_REPO__NAME }}-${{ env.SUBMODULE_REPO__SHA1 }}"
           REPO__SUBMODULE_UPDATE_PR_TITLE="[GHARIAL] bump submodule ${{ env.SUBMODULE_REPO__NAME }} from ${{ env.REPO__SUBMODULE_SHA1 }} to ${{ env.SUBMODULE_REPO__SHA1 }}"
           cd ${{ env.REPO__CHECKOUT_PATH }}
