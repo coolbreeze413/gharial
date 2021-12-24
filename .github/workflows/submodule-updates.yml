@@ -17,23 +17,22 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-
+      #
       REPO__CHECKOUT_PATH: 'gharial'
       REPO__TARGET_BRANCH: 'master'
       REPO__SUBMODULE__REL_PATH: 'dependabot_sub_a'
       REPO__SUBMODULE_SHA1: ''
-
+      #
       SUBMODULE_REPO__OWNER: 'coolbreeze413'
       SUBMODULE_REPO__NAME: 'dependabot_sub_a'
       SUBMODULE_REPO__CHECKOUT_PATH: 'dependabot_sub_a'
       SUBMODULE_REPO__TARGET_BRANCH: 'master'
       SUBMODULE_REPO__SHA1: ''
       SUBMODULE_REPO__CHECK_DIR: 'interesting_dir'
-
+      #
       SUBDMODULE_REPO__HAS_NEW_CHANGES: 'no'
       SUBDMODULE_REPO__HAS_NEW_CHANGES_IN_CHECK_DIR: 'no'
-
-      REPO__SUBMODULE_UPDATE_PR_BRANCH_NAME: ''
+      #
       REPO__SUBMODULE_UPDATE_PR_CREATE: 'no'
       REPO__SUBMODULE_UPDATE_PR_SUPERSEDE: 'no'
       REPO__SUBMODULE_UPDATE_PR_PREV_URL: ''
