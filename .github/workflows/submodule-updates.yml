@@ -35,6 +35,8 @@ jobs:
 
       REPO__SUBMODULE_UPDATE_PR_BRANCH_NAME: ''
       REPO__SUBMODULE_UPDATE_PR_CREATE: 'no'
+      REPO__SUBMODULE_UPDATE_PR_SUPERSEDE: 'no'
+      REPO__SUBMODULE_UPDATE_PR_PREV_URL: ''
 
 
 
@@ -102,22 +104,30 @@ jobs:
       # check if there is already a PR with the same change pending (PR is open)
       # also, if PR is closed, then it means that it was closed by someone ( should we ignore this change then?)
       # if PR is merged, we wouldn't be here
+      # ALSO check if there is a PR for an older revision, if so supersede with a new PR.
       - name: check if PR already exists for the same submodule rev update
         if: ${{ env.SUBDMODULE_REPO__HAS_NEW_CHANGES_IN_CHECK_DIR == 'yes' }}
         run:  |
           cd ${{ env.REPO__CHECKOUT_PATH }}
           REPO__SUBMODULE_UPDATE_PR_TITLE="[GHARIAL] bump submodule ${{ env.SUBMODULE_REPO__NAME }} from ${{ env.REPO__SUBMODULE_SHA1 }} to ${{ env.SUBMODULE_REPO__SHA1 }}"
+          REPO__SUBMODULE_UPDATE_PR_TITLE_PREV="[GHARIAL] bump submodule ${{ env.SUBMODULE_REPO__NAME }} from ${{ env.REPO__SUBMODULE_SHA1 }} to "
           PR_URL=$(gh pr list --search "$REPO__SUBMODULE_UPDATE_PR_TITLE" --state open --json url --jq '.[] | .url')
-          if [ ! -z $PR_URL ] ; then
+          if [ ! -z "$PR_URL" ] ; then
             echo "PR already exists for the same submodule update: $PR_URL"
           else
             REPO__SUBMODULE_UPDATE_PR_CREATE='yes'
             echo "REPO__SUBMODULE_UPDATE_PR_CREATE=$REPO__SUBMODULE_UPDATE_PR_CREATE" >> $GITHUB_ENV
+            PR_URL=$(gh pr list --search "$REPO__SUBMODULE_UPDATE_PR_TITLE_PREV" --state open --json url --jq '.[] | .url')
+            if [ ! -z "$PR_URL" ] ; then
+              echo "older PR already exists for the same submodule update: $PR_URL"
+              echo "this PR should be superseded(closed) after creating a new one."
+              REPO__SUBMODULE_UPDATE_PR_SUPERSEDE='yes'
+              echo "REPO__SUBMODULE_UPDATE_PR_SUPERSEDE=$REPO__SUBMODULE_UPDATE_PR_SUPERSEDE" >> $GITHUB_ENV
+              REPO__SUBMODULE_UPDATE_PR_PREV_URL=$PR_URL
+              echo "REPO__SUBMODULE_UPDATE_PR_PREV_URL=$REPO__SUBMODULE_UPDATE_PR_PREV_URL" >> $GITHUB_ENV
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # check if there is a PR for an older revision, if so supersede with a new PR.
 
       # if we have the interesting differences, create a PR with submodule updates
       - name: full checkout of repo if changes in specific dir of submodule to create PR
@@ -158,6 +168,10 @@ jobs:
           PR_STATUS=$?
           echo "PR_STATUS=$PR_STATUS"
           echo "PR_URL=$PR_URL"
+          if [ ${{ env.REPO__SUBMODULE_UPDATE_PR_SUPERSEDE }} == 'yes' ] ; then
+            gh pr comment ${{ env.REPO__SUBMODULE_UPDATE_PR_PREV_URL }} --body "superseded by $PR_URL"
+            gh pr close ${{ env.REPO__SUBMODULE_UPDATE_PR_PREV_URL }} --delete-branch
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
