@@ -78,7 +78,7 @@ jobs:
 
       # are there any differences between submodule repo HEAD and our repo submodule rev
       - name: check if submodule repo has new changes
-        if:  ${{ env.SUBMODULE_REPO__SHA1 }} != ${{ env.REPO__SUBMODULE_SHA1 }}
+        if:  ${{ env.SUBMODULE_REPO__SHA1 != env.REPO__SUBMODULE_SHA1 }}
         run:  |
           SUBDMODULE_REPO__HAS_NEW_CHANGES="yes"
           echo "SUBDMODULE_REPO__HAS_NEW_CHANGES=$SUBDMODULE_REPO__HAS_NEW_CHANGES" >> $GITHUB_ENV
@@ -87,7 +87,7 @@ jobs:
 
       # are there differences in a specific dir in the submodule repo
       - name: check if there are changes in the specific dir that we are looking for
-        if: ${{ env.SUBDMODULE_REPO__HAS_NEW_CHANGES }} == 'yes'
+        if: ${{ env.SUBDMODULE_REPO__HAS_NEW_CHANGES == 'yes' }}
         run:  |
           cd ${{ env.SUBMODULE_REPO__CHECKOUT_PATH }}
           echo "submodule's repo : ${PWD}"
@@ -103,7 +103,7 @@ jobs:
 
       # if we have the interesting differences, create a PR with submodule updates
       - name: full checkout of repo if changes in specific dir of submodule to create PR
-        if: ${{ env.SUBDMODULE_REPO__HAS_NEW_CHANGES_IN_CHECK_DIR }} == 'yes'
+        if: ${{ env.SUBDMODULE_REPO__HAS_NEW_CHANGES_IN_CHECK_DIR == 'yes' }}
         uses: actions/checkout@v2
         with:
           submodules: 'true'
@@ -111,7 +111,7 @@ jobs:
           fetch-depth: 0 # we need a full clone to update submodule rev (is this true?)
 
       - name: create PR if changes in specific dir of submodule
-        if: ${{ env.SUBDMODULE_REPO__HAS_NEW_CHANGES_IN_CHECK_DIR }} == 'yes'
+        if: ${{ env.SUBDMODULE_REPO__HAS_NEW_CHANGES_IN_CHECK_DIR == 'yes' }}
         run:  |
           echo "${{ env.SUBDMODULE_REPO__HAS_NEW_CHANGES_IN_CHECK_DIR }}"
           REPO__SUBMODULE_UPDATE_PR_BRANCH_NAME="GHARIAL-${{ env.SUBMODULE_REPO__NAME }}-${{ env.SUBMODULE_REPO__SHA1 }}"
