@@ -57,7 +57,7 @@ jobs:
 
       # create PR to master
       - name: create PR to master
-        if: ${{ env.IS_RELEASE_CHANGED == "yes" }}
+        if: ${{ env.IS_RELEASE_CHANGED == 'yes' }}
         run:  |
           PR_TITLE="[GHARIAL-DECEPTICON] Add new artifact: ${{ env.RELEASE_CHANGES }}"
           PR_HEAD="${{ github.ref_name }}"
@@ -72,7 +72,7 @@ jobs:
       
       # approve PR
       - name: approve PR
-        if:  ${{ env.PR_CREATE_STATUS == "0" }}
+        if:  ${{ env.PR_CREATE_STATUS == '0' }}
         run:  |
           gh pr review --comment --body "[GHARIAL-DECEPTICON] auto approve"
           PR_REVIEW_COMMENT_STATUS=$?
@@ -83,7 +83,7 @@ jobs:
 
       # squash and merge PR
       - name: merge PR
-        if:  ${{ env.PR_REVIEW_APPROVE_STATUS == "0" }}
+        if:  ${{ env.PR_REVIEW_APPROVE_STATUS == '0' }}
         run:  |
           gh pr merge ${{ env.PR_URL }} --auto --delete-branch --squash
           GH_PR_MERGE_STATUS=$?
@@ -91,7 +91,7 @@ jobs:
 
       # create release
       - name: create release
-        if:  ${{ env.GH_PR_MERGE_STATUS == "0" }}
+        if:  ${{ env.GH_PR_MERGE_STATUS == '0' }}
         run:  |
           echo "create a release after merging the PR"
           git checkout ${{ env.DEFAULT_BRANCH }} && git fetch

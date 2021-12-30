@@ -93,7 +93,7 @@ jobs:
 
       # use implicit gh cli login ?
       - name: merge the PR if there are artifact changes
-        if: ${{ env.IS_ARTIFACTS_CHANGED "yes" }}
+        if: ${{ env.IS_ARTIFACTS_CHANGED == 'yes' }}
         shell: bash
         run:  |
           echo "artifact has changes, merge the PR."
@@ -109,7 +109,7 @@ jobs:
 
 
       - name: create a release with the artifact added
-        if: ${{ env.IS_ARTIFACTS_CHANGED =="yes" }}
+        if: ${{ env.IS_ARTIFACTS_CHANGED == 'yes' }}
         shell: bash
         run:  |
           echo "create a release after merging the PR"
