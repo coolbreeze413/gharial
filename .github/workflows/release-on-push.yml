@@ -1,0 +1,31 @@
+name: release-on-push
+
+on:
+  push:
+    branches:
+      - 'releases/**'
+
+jobs:
+
+  release-on-push:
+    
+    name: job-release-on-push
+    
+    runs-on: ubuntu-latest
+
+    env:
+      ENV_VAR_FOR_ALL_STEPS_IN_JOB: "blah"
+    
+    steps:
+
+      - name: check out repo
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # we need all history, not a shallow clone for the next step
+
+      - name: debug - dump github context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run:  |
+          echo "$GITHUB_CONTEXT"
+          git log --oneline
