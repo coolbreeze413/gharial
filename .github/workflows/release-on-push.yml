@@ -60,12 +60,15 @@ jobs:
         if: ${{ env.IS_RELEASE_CHANGED == 'yes' }}
         run:  |
           PR_TITLE="[GHARIAL-DECEPTICON] Add new artifact: ${{ env.RELEASE_CHANGES }}"
+          PR_BODY="auto-created PR by release gha"
           PR_HEAD="${{ github.ref_name }}"
           PR_BASE="${{ env.DEFAULT_BRANCH }}"
-          PR_URL=$(gh pr create --title "$PR_TITLE" \
-             --head "$PR_HEAD" \
-             --base "$PR_BASE" \
-             )
+          PR_URL=$(gh pr create \
+                    --title "$PR_TITLE" \
+                    --body "$PR_BODY" \
+                    --head "$PR_HEAD" \
+                    --base "$PR_BASE" \
+                  )
           PR_CREATE_STATUS=$?
           echo "PR_CREATE_STATUS=$PR_CREATE_STATUS" >> $GITHUB_ENV
           echo "PR_URL=$PR_URL" >> $GITHUB_ENV
