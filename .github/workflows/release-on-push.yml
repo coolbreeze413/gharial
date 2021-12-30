@@ -75,18 +75,23 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
-      # approve PR
-      - name: approve PR
-        if:  ${{ env.PR_CREATE_STATUS == '0' }}
-        run:  |
-          gh pr review --comment --body "[GHARIAL-DECEPTICON] auto approve"
-          PR_REVIEW_COMMENT_STATUS=$?
-          echo "PR_REVIEW_COMMENT_STATUS=$PR_REVIEW_COMMENT_STATUS"
-          gh pr review --approve
-          PR_REVIEW_APPROVE_STATUS=$?
-          echo "PR_REVIEW_APPROVE_STATUS=$PR_REVIEW_APPROVE_STATUS" >> $GITHUB_ENV
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # approve PR : TODO add PAT as secrets and use that.
+      # NOTE: cannot approve PR raised by the same entity
+      # so, if PR is created using GITHUB_TOKEN, then cannot approve PR with that
+      #   we should use a PAT to approve the PR. (current scenario)
+      # similarly, if we use PAT to create PR (via script probably).
+      #   we can use the GITHUB_TOKEN to approve the PR (github-actions bot approves it)
+      # - name: approve PR
+      #   if:  ${{ env.PR_CREATE_STATUS == '0' }}
+      #   run:  |
+      #     gh pr review --comment --body "[GHARIAL-DECEPTICON] auto approve"
+      #     PR_REVIEW_COMMENT_STATUS=$?
+      #     echo "PR_REVIEW_COMMENT_STATUS=$PR_REVIEW_COMMENT_STATUS"
+      #     gh pr review --approve
+      #     PR_REVIEW_APPROVE_STATUS=$?
+      #     echo "PR_REVIEW_APPROVE_STATUS=$PR_REVIEW_APPROVE_STATUS" >> $GITHUB_ENV
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # squash and merge PR
       - name: merge PR
