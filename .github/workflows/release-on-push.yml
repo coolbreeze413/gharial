@@ -69,6 +69,8 @@ jobs:
           PR_CREATE_STATUS=$?
           echo "PR_CREATE_STATUS=$PR_CREATE_STATUS" >> $GITHUB_ENV
           echo "PR_URL=$PR_URL" >> $GITHUB_ENV
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
       # approve PR
       - name: approve PR
@@ -80,6 +82,8 @@ jobs:
           gh pr review --approve
           PR_REVIEW_APPROVE_STATUS=$?
           echo "PR_REVIEW_APPROVE_STATUS=$PR_REVIEW_APPROVE_STATUS" >> $GITHUB_ENV
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # squash and merge PR
       - name: merge PR
@@ -88,6 +92,8 @@ jobs:
           gh pr merge ${{ env.PR_URL }} --auto --delete-branch --squash
           GH_PR_MERGE_STATUS=$?
           echo "GH_PR_MERGE_STATUS=$GH_PR_MERGE_STATUS"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # create release
       - name: create release
@@ -129,3 +135,5 @@ jobs:
           gh release create --title "$RELEASE_TITLE" --target ${{ env.DEFAULT_BRANCH }} "$NEW_VERSION" "${{ env.RELEASE_CHANGES }}"
           RELEASE_STATUS=$?
           echo "RELEASE_STATUS=$RELEASE_STATUS"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
