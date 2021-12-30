@@ -59,7 +59,7 @@ jobs:
       # so, we add a gh pr checkout in the run, before trying to
       # review with comment or approve
       - name: approve the review if there are artifact changes
-        if: ${{ env.ARTIFACTS_CHANGES }} == "yes"
+        if: ${{ env.IS_ARTIFACTS_CHANGED == 'yes' }}
         shell: bash
         run:  |
           echo "artifact has changes, approve the PR."
@@ -77,7 +77,7 @@ jobs:
 
       # use explicit gh auth login...
       # - name: merge the PR if there are artifact changes
-      #   if: ${{ env.ARTIFACTS_CHANGES }} == "yes"
+      #   if: ${{ env.ARTIFACTS_CHANGES == 'yes' }}
       #   shell: bash
       #   run:  |
       #     echo "artifact has changes, merge the PR."
@@ -93,7 +93,7 @@ jobs:
 
       # use implicit gh cli login ?
       - name: merge the PR if there are artifact changes
-        if: ${{ env.ARTIFACTS_CHANGES }} == "yes"
+        if: ${{ env.IS_ARTIFACTS_CHANGED "yes" }}
         shell: bash
         run:  |
           echo "artifact has changes, merge the PR."
@@ -109,7 +109,7 @@ jobs:
 
 
       - name: create a release with the artifact added
-        if: ${{ env.ARTIFACTS_CHANGES }} == "yes"
+        if: ${{ env.IS_ARTIFACTS_CHANGED =="yes" }}
         shell: bash
         run:  |
           echo "create a release after merging the PR"

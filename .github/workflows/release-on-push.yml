@@ -14,7 +14,13 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      ENV_VAR_FOR_ALL_STEPS_IN_JOB: "blah"
+      DEFAULT_BRANCH: "master"
+      ALL_CHANGES: ""
+      IS_ANY_FILE_CHANGED: ""
+      RELEASES_DIR: "release-artifacts"
+      RELEASE_CHANGES: ""
+      IS_RELEASE_CHANGED: "no"
+      
     
     steps:
 
@@ -23,9 +29,103 @@ jobs:
         with:
           fetch-depth: 0 # we need all history, not a shallow clone for the next step
 
-      - name: debug - dump github context
-        env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
+      # optional - checking
+      - name: get changed files
         run:  |
-          echo "$GITHUB_CONTEXT"
-          git log --oneline
+          echo "ALL_CHANGES=$(git diff --name-only HEAD..HEAD~1)" >> $GITHUB_ENV
+          echo "IS_ANY_FILE_CHANGED=$(git diff --quiet HEAD..HEAD~1 || echo yes)" >> $GITHUB_ENV
+
+      - name: list changed files
+        run:  |
+          echo "changed files:"
+          echo ${{ env.ALL_CHANGES }}
+          echo ""
+          echo "are-there-changes-in-repo: ${{ env.IS_ANY_FILE_CHANGED }}"
+
+      # we know that releases will have a single file like: "release-artifacts/gharial_release_21_Dec_2021_04_43_56.sh"
+      - name: get changed files in a specific directory
+        run:  |
+          echo "RELEASE_CHANGES=$(git diff --name-only HEAD..HEAD~1 -- ${{ env.RELEASES_DIR }})" >> $GITHUB_ENV
+          echo "IS_RELEASE_CHANGED=$(git diff --quiet HEAD..HEAD~1 -- ${{ env.RELEASES_DIR }} || echo yes)" >> $GITHUB_ENV
+
+      - name: list changed files in a specific directory
+        run:  |
+          echo "changed files in releases:"
+          echo ${{ env.RELEASE_CHANGES }}
+          echo ""
+          echo "are-there-changes-in-releases: ${{ env.IS_RELEASE_CHANGED }}"
+
+      # create PR to master
+      - name: create PR to master
+        if: ${{ env.IS_RELEASE_CHANGED == "yes" }}
+        run:  |
+          PR_TITLE="[GHARIAL-DECEPTICON] Add new artifact: ${{ env.RELEASE_CHANGES }}"
+          PR_HEAD="${{ github.ref_name }}"
+          PR_BASE="${{ env.DEFAULT_BRANCH }}"
+          PR_URL=$(gh pr create --title "$PR_TITLE" \
+             --head "$PR_HEAD" \
+             --base "$PR_BASE" \
+             )
+          PR_CREATE_STATUS=$?
+          echo "PR_CREATE_STATUS=$PR_CREATE_STATUS" >> $GITHUB_ENV
+          echo "PR_URL=$PR_URL" >> $GITHUB_ENV
+      
+      # approve PR
+      - name: approve PR
+        if:  ${{ env.PR_CREATE_STATUS == "0" }}
+        run:  |
+          gh pr review --comment --body "[GHARIAL-DECEPTICON] auto approve"
+          PR_REVIEW_COMMENT_STATUS=$?
+          echo "PR_REVIEW_COMMENT_STATUS=$PR_REVIEW_COMMENT_STATUS"
+          gh pr review --approve
+          PR_REVIEW_APPROVE_STATUS=$?
+          echo "PR_REVIEW_APPROVE_STATUS=$PR_REVIEW_APPROVE_STATUS" >> $GITHUB_ENV
+
+      # squash and merge PR
+      - name: merge PR
+        if:  ${{ env.PR_REVIEW_APPROVE_STATUS == "0" }}
+        run:  |
+          gh pr merge ${{ env.PR_URL }} --auto --delete-branch --squash
+          GH_PR_MERGE_STATUS=$?
+          echo "GH_PR_MERGE_STATUS=$GH_PR_MERGE_STATUS"
+
+      # create release
+      - name: create release
+        if:  ${{ env.GH_PR_MERGE_STATUS == "0" }}
+        run:  |
+          echo "create a release after merging the PR"
+          git checkout ${{ env.DEFAULT_BRANCH }} && git fetch
+          CURRENT_VERSION=`git describe --abbrev=0 --tags 2>/dev/null`
+          if [ -z $CURRENT_VERSION ] ; then
+              
+              CURRENT_VERSION="v0.0.0"
+              NEW_VERSION="v1.0.0"
+
+          else
+
+              # remove "v"
+              CURRENT_VERSION_PARTS=$(echo "$CURRENT_VERSION" | sed 's/v//')
+              # replace . with space so can split into an array
+              CURRENT_VERSION_PARTS=(${CURRENT_VERSION_PARTS//./ })
+
+              # get MAJOR, MINOR, PATCH
+              V_MAJOR=${CURRENT_VERSION_PARTS[0]}
+              V_MINOR=${CURRENT_VERSION_PARTS[1]}
+              V_PATCH=${CURRENT_VERSION_PARTS[2]}
+
+              # use custom logic to determine new MAJOR/MINOR/PATCH version numbers:
+              # currently, we use a simple "increment minor"
+              V_MINOR=$((V_MINOR+1))
+
+              # remember to add "v"
+              NEW_VERSION="v${V_MAJOR}.${V_MINOR}.${V_PATCH}"
+
+          fi
+
+          echo "CURRENT_VERSION=$CURRENT_VERSION"
+          echo "NEW_VERSION=$NEW_VERSION"
+
+          RELEASE_TITLE="[GHARIAL-DECEPTICON] release ${NEW_VERSION}"
+          gh release create --title "$RELEASE_TITLE" --target ${{ env.DEFAULT_BRANCH }} "$NEW_VERSION" "${{ env.RELEASE_CHANGES }}"
+          RELEASE_STATUS=$?
+          echo "RELEASE_STATUS=$RELEASE_STATUS"
