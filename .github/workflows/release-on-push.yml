@@ -95,7 +95,7 @@ jobs:
 
       # squash and merge PR
       - name: merge PR
-        if:  ${{ env.PR_REVIEW_APPROVE_STATUS == '0' }}
+        #if:  ${{ env.PR_REVIEW_APPROVE_STATUS == '0' }}
         run:  |
           gh pr merge ${{ env.PR_URL }} --auto --delete-branch --squash
           GH_PR_MERGE_STATUS=$?
