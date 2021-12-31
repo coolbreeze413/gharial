@@ -11,6 +11,13 @@ GH_REPO="gharial"
 #echo "$CURRENT_DATE"
 #echo "$CURRENT_TIME"
 
+MODE_CREATE_PR_ONLY="false"
+if [ "$#" == "1" ] ; then
+    if [ "$1" == "create-pr" ] ; then
+        MODE_CREATE_PR_ONLY="true"
+    fi
+fi
+
 # spinner stuff
 
 set_spinner_snakey() {
@@ -237,6 +244,20 @@ echo "gh pr created [OK]"
 echo "    $PR_URL"
 echo
 
+
+if [ "$MODE_CREATE_PR_ONLY" == "true" ] ; then
+
+    # logout
+    echo "Y" | gh auth logout --hostname github.com
+
+    # checkout default branch and fetch
+    git checkout "$DEFAULT_BRANCH_NAME"
+    git fetch
+
+    # exit
+    exit 0
+
+fi
 
 
 # approve PR (optional) - need PAT of user other than the PAT used for creating PR!
