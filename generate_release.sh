@@ -116,7 +116,7 @@ git add "${RELEASES_DIR}/${RELEASE_NAME}"
 echo -e "\n\n[-- 04 --]"
 git status
 echo -e "\n\n[-- 05 --]"
-git commit -m "[GHARIAL-DECEPTICON] add new release ${RELEASE_NAME}"
+git commit -m "[GHARIAL-DECEPTICON-COM] add new release ${RELEASE_NAME}"
 echo -e "\n\n[-- 06 --]"
 git status
 echo -e "\n\n[-- 07 --]"
@@ -211,7 +211,7 @@ gh release view --json tagName,publishedAt
 
 
 # create PR
-PR_TITLE="[GHARIAL-DECEPTICON] Add new release: ${RELEASE_NAME}"
+PR_TITLE="[GHARIAL-DECEPTICON-PR] Add new release: ${RELEASE_NAME}"
 PR_BODY="auto create PR for adding a new release."
 PR_HEAD="$RELEASES_BRANCH_NAME"
 PR_BASE="$DEFAULT_BRANCH_NAME"
@@ -245,7 +245,7 @@ echo
 
 
 # merge PR (squash and merge as a single commit)
-PR_MERGE_BODY="[GHARIAL-DECEPTICON] automatically merging latest PR for artifact"
+PR_MERGE_BODY="[GHARIAL-DECEPTICON-MERGE] auto merge latest PR for release"
 PR_MERGE_RESPONSE=$(gh pr merge $PR_URL --auto --delete-branch --squash --body "$PR_MERGE_BODY")
 
 GH_PR_MERGE_STATUS=$?
@@ -314,7 +314,7 @@ echo "blah blah notes for ${RELEASE_NAME}" >> "$RELEASE_NOTES_FILE"
 
 RELEASE_TITLE="release ${NEW_VERSION} : ${RELEASE_NAME}"
 
-GH_RELEASE_RESPONSE=$(gh release create --title "$RELEASE_TITLE" \
+GH_RELEASE_URL=$(gh release create --title "$RELEASE_TITLE" \
                                         --notes-file "$RELEASE_NOTES_FILE" \
                                         --target "$DEFAULT_BRANCH_NAME" \
                                         "$NEW_VERSION" \
@@ -327,7 +327,7 @@ if [ $GH_RELEASE_STATUS -ne 0 ] ; then
 
     echo
     echo "[ERROR] gh release create failed: $GH_RELEASE_STATUS"
-    echo "$GH_RELEASE_RESPONSE"
+    echo "$GH_RELEASE_URL"
     echo
     exit 1
 
@@ -335,7 +335,7 @@ fi
 
 echo
 echo "gh release create [OK]"
-echo "$GH_RELEASE_RESPONSE"
+echo "$GH_RELEASE_URL"
 echo
 
 
@@ -346,7 +346,7 @@ git fetch --tags origin
 
 
 # clean up branches
-# remove pointers to remote branches that don't exits
+# remove pointers to remote branches that don't exist
 git fetch --prune
 # delete local branches which don't have remotes (merged only)
 git branch -vv | grep ': gone]' | awk '{print $1}' | xargs git branch -d
