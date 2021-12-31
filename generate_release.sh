@@ -129,11 +129,7 @@ echo "[-- -- --]"
 echo
 
 
-exit 0
-
-# STEP 3: wait for the release to be created TODO
-
-# STEP -1: prerequisites
+# prerequisites
 # assuming we cloned the repo using a PAT, the token is stored in .git/config file in plaintext
 # what we want is the pattern: "url = https://TOKEN@github.com/OWNER/REPO[.git]"
 # using regex:
@@ -160,27 +156,28 @@ if [ -z "$GH_CONFIG_TOKEN" ] ; then
 fi
 
 
-GH_LINUX_BIN_NAME="gh_2.3.0_linux_amd64"
-if [ ! -d "$GH_LINUX_BIN_NAME" ] ; then
+GH_CLI_VERSION="2.4.0"
+GH_CLI_LINUX_BIN_NAME="gh_${GH_CLI_VERSION}_linux_amd64"
+if [ ! -d "$GH_CLI_LINUX_BIN_NAME" ] ; then
 
-    if [ ! -f "${GH_LINUX_BIN_NAME}.tar.gz" ] ; then
+    if [ ! -f "${GH_CLI_LINUX_BIN_NAME}.tar.gz" ] ; then
 
-        wget "https://github.com/cli/cli/releases/download/v2.3.0/${GH_LINUX_BIN_NAME}.tar.gz"
+        wget "https://github.com/cli/cli/releases/download/v${GH_CLI_VERSION}/${GH_CLI_LINUX_BIN_NAME}.tar.gz"
 
     fi
 
-    tar -xf "${GH_LINUX_BIN_NAME}.tar.gz"
+    tar -xf "${GH_CLI_LINUX_BIN_NAME}.tar.gz"
 
 fi
 
 # add to path:
-GH_CLI_BIN_DIR_PATH="${PWD}/$GH_LINUX_BIN_NAME/bin"
+GH_CLI_BIN_DIR_PATH="${PWD}/${GH_CLI_LINUX_BIN_NAME}/bin"
 export PATH="${GH_CLI_BIN_DIR_PATH}:${PATH}"
 
 # test TODO more
 TEST_GH_BIN_PATH=$(which gh)
 
-if [ "$TEST_GH_BIN_PATH" != "$GH_CLI_BIN_DIR_PATH/gh" ] ; then
+if [ "$TEST_GH_BIN_PATH" != "${GH_CLI_BIN_DIR_PATH}/gh" ] ; then
 
     echo
     echo "[ERROR] unexpected gh cli bin in path!"
@@ -212,20 +209,153 @@ fi
 echo -e "\n\n 1"
 gh release view --json tagName,publishedAt
 
-sleep 60
-echo -e "\n\n 2"
-gh release view --json tagName,publishedAt
 
-sleep 60
-echo -e "\n\n 3"
-gh release view --json tagName,publishedAt
+# create PR
+PR_TITLE="[GHARIAL-DECEPTICON] Add new release: ${RELEASE_NAME}"
+PR_BODY="auto create PR for adding a new release."
+PR_HEAD="$RELEASES_BRANCH_NAME"
+PR_BASE="$DEFAULT_BRANCH_NAME"
+PR_URL=$(gh pr create --title "$PR_TITLE" \
+             --body "$PR_BODY" \
+             --head "$PR_HEAD" \
+             --base "$PR_BASE" \
+             )
 
-sleep 60
-echo -e "\n\n 4"
-gh release view --json tagName,publishedAt
+GH_PR_CREATE_STATUS=$?
+
+if [ $GH_PR_CREATE_STATUS -ne 0 ] ; then
+
+    echo
+    echo "[ERROR] gh pr create failed: $GH_PR_CREATE_STATUS"
+    echo
+    exit 1
+
+fi
+
+echo
+echo "gh pr created [OK]"
+echo "    $PR_URL"
+echo
 
 
-#logout
+
+# approve PR (optional) - need PAT of user other than the PAT used for creating PR!
+# skipped
+
+
+
+# merge PR (squash and merge as a single commit)
+PR_MERGE_BODY="[GHARIAL-DECEPTICON] automatically merging latest PR for artifact"
+PR_MERGE_RESPONSE=$(gh pr merge $PR_URL --auto --delete-branch --squash --body "$PR_MERGE_BODY")
+
+GH_PR_MERGE_STATUS=$?
+
+if [ $GH_PR_MERGE_STATUS -ne 0 ] ; then
+
+    echo
+    echo "[ERROR] gh pr merge failed: $GH_PR_MERGE_STATUS"
+    echo "$GH_PR_MERGE_STATUS"
+    echo
+    exit 1
+
+fi
+
+echo
+echo "gh merge [OK]"
+echo
+
+
+
+# pull in latest remote and switch to default branch now
+git checkout "$DEFAULT_BRANCH_NAME"
+git pull
+
+
+
+# identify new tag version to use (semver)
+CURRENT_VERSION=`git describe --abbrev=0 --tags 2>/dev/null`
+if [ -z $CURRENT_VERSION ] ; then
+    
+    CURRENT_VERSION="v0.0.0"
+    NEW_VERSION="v1.0.0"
+
+else
+
+    # remove "v"
+    CURRENT_VERSION_PARTS=$(echo "$CURRENT_VERSION" | sed 's/v//')
+    # replace . with space so can split into an array
+    CURRENT_VERSION_PARTS=(${CURRENT_VERSION_PARTS//./ })
+
+    # get MAJOR, MINOR, PATCH
+    V_MAJOR=${CURRENT_VERSION_PARTS[0]}
+    V_MINOR=${CURRENT_VERSION_PARTS[1]}
+    V_PATCH=${CURRENT_VERSION_PARTS[2]}
+
+    # use custom logic to determine new MAJOR/MINOR/PATCH version numbers:
+    # current we use a simple "increment minor"
+    V_MINOR=$((V_MINOR+1))
+
+    # remember to add "v"
+    NEW_VERSION="v${V_MAJOR}.${V_MINOR}.${V_PATCH}"
+
+fi
+
+echo "CURRENT_VERSION=$CURRENT_VERSION"
+echo "NEW_VERSION=$NEW_VERSION"
+
+
+
+# create release
+RELEASE_NOTES_FILE="${PWD}/gh_release_changelog_tmp"
+# if file exists, empty contents, else create file all in one! REF: https://askubuntu.com/a/549672
+: > "$RELEASE_NOTES_FILE"
+echo "placeholder notes content for notes or changelog !!" >> "$RELEASE_NOTES_FILE"
+echo "blah blah notes for ${RELEASE_NAME}" >> "$RELEASE_NOTES_FILE"
+
+RELEASE_TITLE="release ${NEW_VERSION} : ${RELEASE_NAME}"
+
+GH_RELEASE_RESPONSE=$(gh release create --title "$RELEASE_TITLE" \
+                                        --notes-file "$RELEASE_NOTES_FILE" \
+                                        --target "$DEFAULT_BRANCH_NAME" \
+                                        "$NEW_VERSION" \
+                                        "${RELEASES_DIR}/${RELEASE_NAME}" )
+
+GH_RELEASE_STATUS=$?
+
+
+if [ $GH_RELEASE_STATUS -ne 0 ] ; then
+
+    echo
+    echo "[ERROR] gh release create failed: $GH_RELEASE_STATUS"
+    echo "$GH_RELEASE_RESPONSE"
+    echo
+    exit 1
+
+fi
+
+echo
+echo "gh release create [OK]"
+echo "$GH_RELEASE_RESPONSE"
+echo
+
+
+
+# fetch the new tags after release:
+git fetch --tags origin
+
+
+
+# clean up branches
+# remove pointers to remote branches that don't exits
+git fetch --prune
+# delete local branches which don't have remotes (merged only)
+git branch -vv | grep ': gone]' | awk '{print $1}' | xargs git branch -d
+# force delete local branches without remotes (unmerged)
+#git branch -vv | grep ': gone]' | awk '{print $1}' | xargs git branch -D
+
+
+
+# logout
 echo "Y" | gh auth logout --hostname github.com
 
 exit 0
