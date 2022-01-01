@@ -497,7 +497,7 @@ fi
 
 
 # wait for some time before querying the latest release (takes some time to update in gh)
-sleep 30
+sleep 10
 RELEASE_TAG=$(gh release view --json tagName --jq '.tagName')
 RELEASE_URL=$(gh release view --json url --jq '.url')
 RELEASE_ASSET=$(gh release view --json assets --jq '.assets[].name')
