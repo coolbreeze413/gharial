@@ -279,8 +279,8 @@ if [ "$MODE_CREATE_PR_ONLY" == "true" ] ; then
 
         echo
         echo "release created by GHA [OK]"
-        echo "        RELEASE_TAG: $TAG"
-        echo "        RELEASE_URL: $URL"
+        echo "        RELEASE_TAG: $RELEASE_TAG"
+        echo "        RELEASE_URL: $RELEASE_URL"
         echo "      RELEASE_ASSET: $RELEASE_ASSET"
         echo "  RELEASE_ASSET_URL: $RELEASE_ASSET_URL"
         echo
