@@ -6,7 +6,7 @@ on:
   # https://crontab.guru/#00_20_*_*_*
   # UTC: 20:00 HRS
   # IST: 01:30 HRS
-    - cron: '00 22 * * *'
+    - cron: '30 22 * * *'
 
 
 
