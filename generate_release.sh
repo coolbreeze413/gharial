@@ -255,7 +255,6 @@ if [ "$MODE_CREATE_PR_ONLY" == "true" ] ; then
 
     echo
     echo "waiting for release to be created by GHA"
-    echo
 
     while [ $CURR_TIME -le $TIMEOUT ] ; do
 
