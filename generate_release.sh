@@ -213,9 +213,6 @@ if [ $GH_LOGIN_STATUS -ne 0 ] ; then
 
 fi
 
-echo -e "\n\n 1"
-gh release view --json tagName,publishedAt
-
 
 # create PR
 PR_TITLE="[GHARIAL-DECEPTICON-PR] Add new release: ${RELEASE_NAME}"
@@ -246,6 +243,49 @@ echo
 
 
 if [ "$MODE_CREATE_PR_ONLY" == "true" ] ; then
+
+    # wait for the PR to be merged, and the release created...
+    TIMEOUT=120
+    RETRY_TIME=30
+    CURR_TIME=0
+    RELEASE_ASSET=""
+
+    echo
+    echo "waiting for release to be created by GHA"
+    echo
+
+    while [ $CURR_TIME -le $TIMEOUT ] ; do
+
+        echo "..."
+
+        RELEASE_ASSET=$(gh release view --json assets --jq '.assets[].name')
+        
+        if [ "$RELEASE_ASSET" == "$RELEASE_NAME" ] ; then
+            break
+        fi
+
+        CURR_TIME=$(($CURR_TIME + $RETRY_TIME))
+        sleep $RETRY_TIME
+
+    done
+    
+    if [ "$RELEASE_ASSET" == "$RELEASE_NAME" ] ; then
+
+        TAG=$(gh release view --json tagName --jq '.tagName')
+        URL=$(gh release view --json url --jq '.url')
+
+        echo
+        echo "new release created by GHA:"
+        echo "  TAG: $TAG"
+        echo "  URL: $URL"
+        echo
+
+    else
+
+        echo "timed out waiting for new release creation!"
+        echo "check the GH Actions workflow for any errors!"
+
+    fi
 
     # logout
     echo "Y" | gh auth logout --hostname github.com

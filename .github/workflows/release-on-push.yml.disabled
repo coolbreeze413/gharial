@@ -1,5 +1,9 @@
 name: release-on-push
 
+# this is not a good idea. push, pr and release in same workflow is finicky.
+# raise PR from script -> use gha to merge PR and release
+# or entire process from script is ok.
+
 on:
   push:
     branches:
