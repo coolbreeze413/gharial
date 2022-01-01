@@ -181,7 +181,6 @@ fi
 GH_CLI_BIN_DIR_PATH="${PWD}/${GH_CLI_LINUX_BIN_NAME}/bin"
 export PATH="${GH_CLI_BIN_DIR_PATH}:${PATH}"
 
-# test TODO more
 TEST_GH_BIN_PATH=$(which gh)
 
 if [ "$TEST_GH_BIN_PATH" != "${GH_CLI_BIN_DIR_PATH}/gh" ] ; then
@@ -212,6 +211,10 @@ if [ $GH_LOGIN_STATUS -ne 0 ] ; then
     exit 1
 
 fi
+
+echo
+echo "gh cli login [OK]"
+echo
 
 
 # create PR
@@ -256,7 +259,7 @@ if [ "$MODE_CREATE_PR_ONLY" == "true" ] ; then
 
     while [ $CURR_TIME -le $TIMEOUT ] ; do
 
-        echo "..."
+        echo "[waiting]"
 
         RELEASE_ASSET=$(gh release view --json assets --jq '.assets[].name')
         
@@ -271,20 +274,22 @@ if [ "$MODE_CREATE_PR_ONLY" == "true" ] ; then
     
     if [ "$RELEASE_ASSET" == "$RELEASE_NAME" ] ; then
 
-        TAG=$(gh release view --json tagName --jq '.tagName')
-        URL=$(gh release view --json url --jq '.url')
+        RELEASE_TAG=$(gh release view --json tagName --jq '.tagName')
+        RELEASE_URL=$(gh release view --json url --jq '.url')
+        RELEASE_ASSET_URL=$(gh release view --json assets --jq '.assets[].url')
 
         echo
-        echo "new release created by GHA:"
-        echo "      TAG: $TAG"
-        echo "      URL: $URL"
-        echo "  RELEASE: $RELEASE_ASSET"
+        echo "release created by GHA [OK]"
+        echo "        RELEASE_TAG: $TAG"
+        echo "        RELEASE_URL: $URL"
+        echo "      RELEASE_ASSET: $RELEASE_ASSET"
+        echo "  RELEASE_ASSET_URL: $RELEASE_ASSET_URL"
         echo
 
     else
 
-        echo "timed out waiting for new release creation!"
-        echo "check the GH Actions workflow for any errors!"
+        echo "[ERROR]timed out waiting for new release creation!"
+        echo "    check the GH Actions workflow for any errors!"
 
     fi
 
