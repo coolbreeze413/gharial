@@ -313,8 +313,96 @@ if [ "$MODE_CREATE_PR_ONLY" == "true" ] ; then
 fi
 
 
+##########################################################################################
+# # B: create PR using a HTTP POST request (DEPRECATED - FOR REFERENCE ONLY)
+##########################################################################################
+# #   REF: https://docs.github.com/en/rest/reference/pulls#create-a-pull-request
+# #   B.1 : use curl to execute the HTTP POST (current approach)
+# #   B.2 : use gh api directly to do the POST?
+
+# # curl POST request:
+# # REF: https://gist.github.com/subfuzion/08c5d85437d5d4f00e58
+# # -X request method to use, default is GET
+# # -H headers to supply with request
+# #   for gh PR, we can also send token with header:
+# #       -H "Authorization: Bearer $GITHUB_TOKEN"
+# # -d send POST data
+# #       JSON: 
+# #           -d "{\"key1\":\"value1\", \"key2\":\"value2\"}"
+# #           -d "@data.json"
+# #       FORM URLENCODED
+# #           -d "param1=value1&param2=value2"
+# #           -d "@data.txt"
+# #
+# # general curl options
+# # -s will silence progress meter of the request
+# # -o /path/to/file will extract the response body and put it into a file
+# #   if not used, then response body is output of curl
+# # -w will extract the status code from the response
+# # look at this for ref on how to get status code AND response both:
+# #   https://stackoverflow.com/a/33900500/3379867
+
+# GH_PR_TITLE="[GHARIAL-AUTO] Add new artifact: ${ARTIFACT_NAME}"
+# GH_PR_BODY="We have a new artifact generated!\n\nWe would like to add this with this PR!\n"
+# GH_PR_IS_DRAFT="false" # "true" if we want it to be a draft PR
+# GH_PR_ISSUE="" # integer number referencing an issue to link PR with an issue
+
+
+# # use the github token for authorization in the curl POST request.
+
+# echo
+# echo "obtained PAT, create PR using HTTP POST"
+# echo
+
+# RESPONSE=$(curl \
+#     -s \
+#     -w "GHARIAL_PR_HTTP_STATUS:%{http_code}" \
+#     -X POST \
+#     -H "Authorization: Bearer $GH_CONFIG_TOKEN" \
+#     -H "Accept: application/vnd.github.v3+json" \
+#     -d "{\"title\":\"${GH_PR_TITLE}\",\"head\":\"${PR_BRANCH_NAME}\",\"base\":\"${DEFAULT_BRANCH_NAME}\",\"body\":\"${GH_PR_BODY}\"}" \
+#     "https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/pulls")
+
+# CURL_POST_STATUS=$?
+
+# if [ $CURL_POST_STATUS -ne 0 ] ; then
+
+#     echo
+#     echo "curl failed with status = ${CURL_POST_STATUS}"
+#     echo "    refer to below link for error details: "
+#     echo "    https://everything.curl.dev/usingcurl/returns"
+#     echo
+#     exit 1
+
+# fi
+
+
+# # extract the actual reponse only:
+# ACTUAL_RESPONSE=$(echo "$RESPONSE" | sed -e 's/^GHARIAL_PR_HTTP_STATUS:.*//')
+# # store the curl response for debugging (add to .gitignore!)
+# echo "$ACTUAL_RESPONSE" > curl_response.debug.log
+
+# # extract the status code:
+# GHARIAL_HTTP_STATUS=$(echo "$RESPONSE" | tr -d '\n' | sed -e 's/.*GHARIAL_PR_HTTP_STATUS://')
+
+# # extract the PR URL only if response code is ok (gh returns 201 created!):
+# if [ $GHARIAL_HTTP_STATUS == "201" ] ; then
+#     PR_URL=$(echo "$ACTUAL_RESPONSE" | jq '.html_url')
+#     echo
+#     echo "PR created : ${PR_URL}"
+#     echo
+# else
+#     echo
+#     echo "HTTP POST failed, with status: $GHARIAL_HTTP_STATUS"
+#     echo
+#     exit 1
+# fi
+##########################################################################################
+
+
+
 # approve PR (optional) - need PAT of user other than the PAT used for creating PR!
-# skipped
+# (not used in script flow!)
 
 
 
@@ -407,9 +495,18 @@ if [ $GH_RELEASE_STATUS -ne 0 ] ; then
 
 fi
 
+
+RELEASE_TAG=$(gh release view --json tagName --jq '.tagName')
+RELEASE_URL=$(gh release view --json url --jq '.url')
+RELEASE_ASSET=$(gh release view --json assets --jq '.assets[].name')
+RELEASE_ASSET_URL=$(gh release view --json assets --jq '.assets[].url')
+
 echo
-echo "gh release create [OK]"
-echo "$GH_RELEASE_URL"
+echo "release created by GHA [OK]"
+echo "        RELEASE_TAG: $RELEASE_TAG"
+echo "        RELEASE_URL: $RELEASE_URL"
+echo "      RELEASE_ASSET: $RELEASE_ASSET"
+echo "  RELEASE_ASSET_URL: $RELEASE_ASSET_URL"
 echo
 
 
