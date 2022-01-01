@@ -3,8 +3,10 @@ name: submodule-updates
 on:
   schedule:
   # * is a special character in YAML so you have to quote this string
-  # https://crontab.guru/#40_19_*_*_*
-    - cron: '40 19 * * *'
+  # https://crontab.guru/#00_20_*_*_*
+  # UTC: 20:00 HRS
+  # IST: 01:30 HRS
+    - cron: '00 20 * * *'
 
 
 

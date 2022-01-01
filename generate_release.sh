@@ -104,7 +104,13 @@ mv -v "$RELEASE_NAME" "${RELEASES_DIR}/${RELEASE_NAME}"
 
 # STEP 2: commit the artifact into new branch (for raising a PR)
 DEFAULT_BRANCH_NAME="master"
-RELEASES_BRANCH_NAME="releases/${CURRENT_DATE}/${CURRENT_TIME}"
+if [ "$MODE_CREATE_PR_ONLY" == "true" ] ; then
+    # this mode has a gh action which is triggered with a PR from a 'releases/**' branch
+    RELEASES_BRANCH_NAME="releases/${CURRENT_DATE}/${CURRENT_TIME}"
+else
+    # preven the gh action from triggering for standalone mode, so use a different branch name than above
+    RELEASES_BRANCH_NAME="release-no-gha/${CURRENT_DATE}/${CURRENT_TIME}"
+fi
 
 echo
 echo "commit release to a new branch and push upstream."
