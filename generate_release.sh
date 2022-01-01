@@ -276,8 +276,9 @@ if [ "$MODE_CREATE_PR_ONLY" == "true" ] ; then
 
         echo
         echo "new release created by GHA:"
-        echo "  TAG: $TAG"
-        echo "  URL: $URL"
+        echo "      TAG: $TAG"
+        echo "      URL: $URL"
+        echo "  RELEASE: $RELEASE_ASSET"
         echo
 
     else
@@ -298,9 +299,9 @@ if [ "$MODE_CREATE_PR_ONLY" == "true" ] ; then
     # remove pointers to remote branches that don't exist
     git fetch --prune
     # delete local branches which don't have remotes (merged only)
-    git branch -vv | grep ': gone]' | awk '{print $1}' | xargs git branch -d
+    #git branch -vv | grep ': gone]' | awk '{print $1}' | xargs git branch -d
     # force delete local branches without remotes (unmerged)
-    #git branch -vv | grep ': gone]' | awk '{print $1}' | xargs git branch -D
+    git branch -vv | grep ': gone]' | awk '{print $1}' | xargs git branch -D
 
     # exit
     exit 0
