@@ -292,7 +292,15 @@ if [ "$MODE_CREATE_PR_ONLY" == "true" ] ; then
 
     # checkout default branch and fetch
     git checkout "$DEFAULT_BRANCH_NAME"
-    git fetch
+    git fetch --tags origin
+
+    # clean up branches
+    # remove pointers to remote branches that don't exist
+    git fetch --prune
+    # delete local branches which don't have remotes (merged only)
+    git branch -vv | grep ': gone]' | awk '{print $1}' | xargs git branch -d
+    # force delete local branches without remotes (unmerged)
+    #git branch -vv | grep ': gone]' | awk '{print $1}' | xargs git branch -D
 
     # exit
     exit 0
