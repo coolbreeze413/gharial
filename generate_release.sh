@@ -496,6 +496,8 @@ if [ $GH_RELEASE_STATUS -ne 0 ] ; then
 fi
 
 
+# wait for some time before querying the latest release (takes some time to update in gh)
+sleep 30
 RELEASE_TAG=$(gh release view --json tagName --jq '.tagName')
 RELEASE_URL=$(gh release view --json url --jq '.url')
 RELEASE_ASSET=$(gh release view --json assets --jq '.assets[].name')
@@ -520,9 +522,9 @@ git fetch --tags origin
 # remove pointers to remote branches that don't exist
 git fetch --prune
 # delete local branches which don't have remotes (merged only)
-git branch -vv | grep ': gone]' | awk '{print $1}' | xargs git branch -d
+#git branch -vv | grep ': gone]' | awk '{print $1}' | xargs git branch -d
 # force delete local branches without remotes (unmerged)
-#git branch -vv | grep ': gone]' | awk '{print $1}' | xargs git branch -D
+git branch -vv | grep ': gone]' | awk '{print $1}' | xargs git branch -D
 
 
 
