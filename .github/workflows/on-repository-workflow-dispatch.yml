@@ -1,0 +1,73 @@
+name: test repository-or-workflow dispatch receive
+
+# workflow_dispatch : use this to run a specific workflow (also can trigger this from GH WebUI)
+#   need to pass in the id of the specific workflow or the name of the specific workflow FILE to run
+#   pass in the 'ref' on which the workflow should run (git ref : branch/tag) REQUIRED
+#   can pass in 'inputs' {} object with upto 10 key-value pairs to the workflow OPTIONAL
+#   can be triggered in any branch (but looks like the workflow file should ALSO be on default branch!)
+# https://docs.github.com/en/rest/reference/actions#create-a-workflow-dispatch-event
+# https://github.blog/changelog/2021-11-10-github-actions-input-types-for-manual-workflows/
+# https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions#onworkflow_dispatchinputs
+# curl example:
+#   curl \
+#     -X POST \
+#     -H "Accept: application/vnd.github.v3+json" \
+#     -H "Authorization: Bearer <your-token>" \
+#     https://api.github.com/repos/<user>/<repo>/actions/workflows/<workflow_id>/dispatches \
+#     -d '{"ref":"master"}'
+#
+# OR using the workflow yaml file name
+#
+#   curl \
+#     -X POST \
+#     -H "Accept: application/vnd.github.v3+json" \
+#     -H "Authorization: Bearer <your-token>" \
+#     https://api.github.com/repos/<user>/<repo>/actions/workflows/<workflow_yml_file_name>/dispatches \
+#     -d '{"ref":"master"}'
+
+# repository_dispatch: use this to trigger all workflows in a repo (which accept the repository_dispatch triggers)
+#   further, we can define specific event types for this (string) REQUIRED
+#   also, we can have a custom JSON client_payload {} with any data we want to pass OPTIONAL
+#   this event will only trigger a workflow run if the workflow file is on the default branch.
+# https://docs.github.com/en/rest/reference/repos#create-a-repository-dispatch-event
+# https://codeburst.io/using-github-actions-with-repository-dispatch-event-c113a45b3948
+# https://gist.github.com/Daniel-ltw/552b90800b07c22e4a83dfa68ada6318
+# curl example:
+#    curl \
+#    -X POST \
+#    -H "Accept: application/vnd.github.v3+json" \
+#    -H "Authorization: Bearer <your-token>" \
+#    https://api.github.com/repos/<user>/<repo>/dispatches \
+#    -d '{"event_type":"<your-event-type>"}, "client_payload": {"foo": "bar"}'
+
+# note that, for both cases, a PAT should be used to authenticate the API trigger to use the endpoints
+# like this: (curl example)
+# -H "Authorization: Bearer <your-token>" \
+#
+# hence, to trigger either from another workflow file, an organization/repository/environment secret should
+#   already have been added and available to use in the 'triggering' workflow
+#
+# create PAT -> add as a secret to the repository (or env) in the repo > settings > secrets
+#
+
+
+
+on:
+  repository_dispatch:
+    types:
+      - coolbreeze413-test-trigger-a
+      - coolbreeze413-test-trigger-b
+  workflow_dispatch:
+
+jobs:
+
+  test-repository-or-workflow-dispatch-receive-job:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"

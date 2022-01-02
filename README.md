@@ -21,7 +21,10 @@ script generates artifact, creates PR, merges PR, creates RELEASE
 script generates artifact, creates PR  
 gh actions processes PR, merges PR, creates RELEASE  
 
-`release-on-pr.yml`
+[![subdmodule-updates](https://github.com/coolbreeze413/gharial/actions/workflows/release-on-pr.yml/badge.svg)](https://github.com/coolbreeze413/gharial/actions/workflows/release-on-pr.yml)
+
+[![](https://img.shields.io/static/v1?label=actions&labelColor=444444&message=release-on-pr.yml&color=2088FF&logo=github&logoColor=2088FF)](https://github.com/coolbreeze413/gharial/blob/master/.github/workflows/release-on-pr.yml)
+
 
 - script in the repo
 - user clones repo with token, runs script: `./generate_release.sh create-pr`
@@ -43,7 +46,10 @@ for bumping up submodule revision in the repo.
 for straightforward use cases, use dependabot.  
 for triggering PRs only when a specific file/dir of a submodule us updated, use this gha.  
 
-`submodule-updates.yml`
+[![subdmodule-updates](https://github.com/coolbreeze413/gharial/actions/workflows/submodule-updates.yml/badge.svg)](https://github.com/coolbreeze413/gharial/actions/workflows/submodule-updates.yml)
+
+[![](https://img.shields.io/static/v1?label=actions&labelColor=444444&message=submodule-updates.yml&color=2088FF&logo=github&logoColor=2088FF)](https://github.com/coolbreeze413/gharial/blob/master/.github/workflows/submodule-updates.yml)
+
 
 - check for submodule updates (revision)
   - if yes, check if change in a specific dir of interest
