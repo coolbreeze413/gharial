@@ -1,0 +1,30 @@
+{
+    "token": "***",
+    "job": "check-submodules",
+    "ref": "refs/heads/master",
+    "sha": "64b13e374e6dc5891dccd687979acd0ef1c6fc85",
+    "repository": "coolbreeze413/gharial",
+    "repository_owner": "coolbreeze413",
+    "repositoryUrl": "git://github.com/coolbreeze413/gharial.git",
+    "run_id": "1644625781",
+    "run_number": "54",
+    "retention_days": "90",
+    "run_attempt": "1",
+    "actor": "coolbreeze413",
+    "workflow": "submodule-updates",
+    "head_ref": "",
+    "base_ref": "",
+    "event_name": "schedule",
+    "event": {
+      "schedule": "30 22 * * *"
+    },
+    "server_url": "https://github.com",
+    "api_url": "https://api.github.com",
+    "graphql_url": "https://api.github.com/graphql",
+    "ref_name": "master",
+    "ref_protected": true,
+    "ref_type": "branch",
+    "secret_source": "Actions",
+    "workspace": "/home/runner/work/gharial/gharial",
+    "action": "__run"
+  }
