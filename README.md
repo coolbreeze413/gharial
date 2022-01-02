@@ -62,3 +62,36 @@ for triggering PRs only when a specific file/dir of a submodule us updated, use 
       - if previous PR for older version was raised, close it now, and add a comment pointing to
         the new PR number which supersedes the previous PR
   - done
+
+
+## [4] repository-dispatch and workflow-dispatch
+
+workflow can be triggered using a POST request to GH API.  
+this can, for example be triggered from a workflow in another repo, say on a push to 'master'  
+
+gh action to receive `repository-dispatch` and `workflow-dispatch` events is in this repo:  
+
+[![repository-workflow-dispatch](https://github.com/coolbreeze413/gharial/actions/workflows/on-repository-workflow-dispatch.yml/badge.svg)](https://github.com/coolbreeze413/gharial/actions/workflows/on-repository-workflow-dispatch.yml)  
+
+[![](https://img.shields.io/static/v1?label=actions&labelColor=444444&message=on-repository-workflow-dispatch.yml&color=2088FF&logo=github&logoColor=2088FF)](https://github.com/coolbreeze413/gharial/blob/master/.github/workflows/on-repository-workflow-dispatch.yml)  
+
+
+examples of how a workflow from another repo can trigger this workflow through both type of events are here:  
+
+`repository-dispatch` :  
+
+[![trigger-repository-dispatch](https://github.com/coolbreeze413/dependabot_sub_a/actions/workflows/trigger-repository-dispatch.yml/badge.svg)](https://github.com/coolbreeze413/dependabot_sub_a/actions/workflows/trigger-repository-dispatch.yml)  
+
+[![](https://img.shields.io/static/v1?label=actions&labelColor=444444&message=trigger-repository-dispatch.yml&color=2088FF&logo=github&logoColor=2088FF)](https://github.com/coolbreeze413/dependabot_sub_a/blob/master/.github/workflows/trigger-repository-dispatch.yml)  
+
+`workflow-dispatch` :  
+
+[![trigger-workflow-dispatch](https://github.com/coolbreeze413/dependabot_sub_a/actions/workflows/trigger-workflow-dispatch.yml/badge.svg)](https://github.com/coolbreeze413/dependabot_sub_a/actions/workflows/trigger-workflow-dispatch.yml)  
+
+[![](https://img.shields.io/static/v1?label=actions&labelColor=444444&message=trigger-workflow-dispatch.yml&color=2088FF&logo=github&logoColor=2088FF)](https://github.com/coolbreeze413/dependabot_sub_a/blob/master/.github/workflows/trigger-workflow-dispatch.yml)  
+
+NOTE: the workflows from the triggering repo (dependabot_sub_a) use the repo secret: secret.GHARIAL_PAT_SECRET  
+this secret is added to the repo, with the PAT which can actually access the target repo (gharial)
+default `GITHUB_TOKEN` cannot be used.  
+
+NOTE: the same event can be sent from any REST client (cURL) using an appropriate PAT, such as from a script, instead of from the workflow of another repo.  
