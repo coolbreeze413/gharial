@@ -1,0 +1,26 @@
+name: test-json-array
+
+on:
+  push:
+    branches:
+      - 'master'
+
+jobs:
+  
+  test-json-array-job:
+
+    name: test-json-array-job
+    runs-on: ubuntu-latest
+
+    env:
+      MULTIPLE_ITEMS_JSON: '{[item_a, item_b, item_c]}'
+
+    steps:
+
+      - name: list json items
+        shell: bash
+        run:  |
+          items=$(echo "${{ env.MULTIPLE_ITEMS_JSON }}" | jq -c -r '.[]')
+          for item in ${items[@]}; do
+            echo $item
+          done
