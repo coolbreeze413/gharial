@@ -21,6 +21,6 @@ jobs:
         shell: bash
         run:  |
           items=$(echo '${{ env.MULTIPLE_ITEMS_JSON }}' | jq -c -r '.[]')
-          for item in ${items[@]}; do
-            echo $item
+          for item in "${items[@]}"; do
+            echo "$item"
           done
