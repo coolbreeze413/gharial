@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      MULTIPLE_ITEMS_JSON: '{[item_a, item_b, item_c]}'
+      MULTIPLE_ITEMS_JSON: '[item_a, item_b, item_c]'
 
     steps:
 
