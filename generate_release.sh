@@ -389,6 +389,10 @@ if [ "$GHA_MODE_ENABLED" == "$FALSE_VAL" ] ; then
 
     fi
 
+    echo
+    echo "gh release created [OK]"
+    echo
+
 
 fi # if [ "$GHA_MODE_ENABLED" == "$FALSE_VAL" ]
 

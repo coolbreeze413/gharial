@@ -9,7 +9,7 @@ script generates artifact, creates PR, merges PR, creates RELEASE
 - script in the repo
 - user clones repo with token, runs script: `./generate_release.sh`
 - script creates artifact
-- script commits artifact into new branch : `release-no-gha/$DATE/$TIME`  
+- script commits artifact into new branch : `releases-no-gha/$DATE/$TIME`  
   this is so that standalone run does not also invoke the `release-on-pr.yml` workflow!
 - script pushes branch to upstream
 - script creates a PR from branch to master using gh-cli
@@ -28,7 +28,7 @@ gh actions processes PR, merges PR, creates RELEASE
 
 
 - script in the repo
-- user clones repo with token, runs script: `./generate_release.sh create-pr`
+- user clones repo with token, runs script with argument: `./generate_release.sh github-actions`
 - script creates artifact
 - script commits artifact into new branch : `releases/$DATE/$TIME`
 - script pushes branch to upstream
