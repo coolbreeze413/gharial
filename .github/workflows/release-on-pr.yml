@@ -151,4 +151,4 @@ jobs:
           GH_RELEASE_STATUS=$?
           echo "GH_RELEASE_STATUS=$GH_RELEASE_STATUS" >> $GITHUB_ENV
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GHARIAL_PAT_SECRET }}
