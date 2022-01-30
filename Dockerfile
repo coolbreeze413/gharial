@@ -59,7 +59,7 @@ RUN chmod ugo+rwx /gharial/${GHARIAL_RELEASE_SCRIPT}
 
 # set ENV variables
 ENV PATH=/gharial:$PATH
-RUN echo $PATH
+#RUN echo $PATH
 
 
 # default ENTRYPOINT + CMD

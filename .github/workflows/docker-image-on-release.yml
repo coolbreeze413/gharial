@@ -45,22 +45,24 @@ jobs:
         # Change all uppercase to lowercase
         IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
         
-        # Strip git ref prefix from version
+        # Strip git ref prefix from version (testing)
         VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
         echo VERSION=$VERSION
         
-        # Strip "v" prefix from tag name
+        # Strip "v" prefix from tag name (testing)
         VERSION=$(echo $VERSION | sed -e 's/^v//')
         echo VERSION=$VERSION
         
         # Use Docker `latest` tag convention
+        # we currently only push this one, and don't push docker images for each version
         VERSION=latest
         
+        echo
         echo IMAGE_ID=$IMAGE_ID
         echo VERSION=$VERSION
         
-        # docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
+        docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
         
-        # docker push $IMAGE_ID:$VERSION
+        docker push $IMAGE_ID:$VERSION
 
 
