@@ -33,7 +33,7 @@ jobs:
 
     - name: login-ghcr-io
       run:  |
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+        echo "$GITHUB_TOKEN" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
