@@ -70,6 +70,6 @@ ENV PATH=/gharial:$PATH
 # https://docs.github.com/en/packages/learn-github-packages/connecting-a-repository-to-a-package#connecting-a-repository-to-a-container-image-using-the-command-line
 LABEL org.opencontainers.image.source=https://github.com/coolbreeze413/gharial
 
-ENTRYPOINT ["/gharial_entrypoint.sh"]
+ENTRYPOINT ["/gharial/gharial_entrypoint.sh"]
 
 CMD ["gharial_release"]

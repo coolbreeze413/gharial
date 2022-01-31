@@ -17,8 +17,9 @@ printf "PATH: ${PATH}\n\n"
 
 # create symlink as 'gharial_release' to the release script
 GHARIAL_RELEASE_SCRIPT_NAME=$(cd /gharial && ls gharial_release_*.sh)
+printf "RELEASE_SCRIPT: ${GHARIAL_RELEASE_SCRIPT_NAME}\n\n"
 # ln -s "TO" "FROM"
-ln -s "/gharial/${GHARIAL_RELEASE_SCRIPT_NAME}" "/gharial/gharial_release"
+ln -v -s "/gharial/${GHARIAL_RELEASE_SCRIPT_NAME}" "/gharial/gharial_release"
 
 # debug print
 printf "running as:\n$(id)\n\n"
