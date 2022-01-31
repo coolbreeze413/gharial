@@ -20,9 +20,7 @@ FROM ubuntu:20.04 AS gharial_runner
 
 # inputs to use while building the docker image: the release script
 # default script if not passed in:
-ARG GHARIAL_RELEASE_SCRIPT="gharial_release_31_Dec_2021_12_08_54.sh"
-# script dir:
-ARG GHARIAL_RELEASE_DIR="release-artifacts"
+ARG GHARIAL_RELEASE_SCRIPT="release-artifacts/gharial_release_31_Dec_2021_12_08_54.sh"
 
 # use bash as the default shell instead of sh
 SHELL ["/bin/bash", "-c"]
@@ -50,7 +48,7 @@ RUN echo 'root:docker' | chpasswd
 
 # copy the release script
 RUN mkdir /gharial
-COPY ./${GHARIAL_RELEASE_DIR}/${GHARIAL_RELEASE_SCRIPT} /gharial/
+COPY ./${GHARIAL_RELEASE_SCRIPT} /gharial/
 
 # world rw permissions so that we can execute with userid:groupid same as user from HOST, if needed
 #RUN ls -ll /gharial

@@ -9,6 +9,7 @@ on:
 
 env:
   IMAGE_NAME: gharial
+  RELEASE_SCRIPT_DIR: "release-artifacts"
 
 jobs:
   docker-image:
@@ -29,7 +30,16 @@ jobs:
 
     - name: build-image
       run:  |
-        docker build . --file Dockerfile --tag $IMAGE_NAME --label "runnumber=${GITHUB_RUN_ID}"
+        RELEASE_SCRIPT_DOWNLOAD_URL=${{ github.event.release.assets[0].browser_download_url }}
+        RELEASE_SCRIPT_NAME=${{ github.event.release.assets[0].name }}
+        RELEASE_SCRIPT_DIR=${{ env.RELEASE_SCRIPT_DIR }}
+        RELEASE_VERSION=${{ github.event.release.tag_name }}
+        # we can either download the release stuff using the URL (if not available in the repo itself)
+        # or, if in the repo itself, use the release stuff directly as we have the repo checked out at the "release" ref already
+        docker build . --file Dockerfile \
+                       --tag $IMAGE_NAME \
+                       --label "version=$RELEASE_VERSION" \
+                       --build-arg GHARIAL_RELEASE_SCRIPT="$RELEASE_SCRIPT_DIR/$RELEASE_SCRIPT_NAME"
 
     - name: login-ghcr-io
       run:  |
