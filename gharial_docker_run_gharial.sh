@@ -54,10 +54,6 @@ echo "running IMAGE: $GHARIAL_IMAGE"
 XAUTHORITY=$(xauth info | grep "Authority file" | awk '{ print $3 }')
 
 docker run -it --rm --cap-drop=all \
-    --net=host \
-    --env DISPLAY \
-    -v /tmp/.X11-unix:/tmp/.X11-unix:ro \
-    -v $XAUTHORITY:/home/gharialrunner/.Xauthority:ro \
     -v $HOST_WORKDIR:$IMAGE_WORKDIR \
     --volume="/etc/group:/etc/group:ro" \
     --volume="/etc/passwd:/etc/passwd:ro" \

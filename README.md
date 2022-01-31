@@ -22,9 +22,15 @@ script generates artifact, creates PR, merges PR, creates RELEASE
 script generates artifact, creates PR  
 gh actions processes PR, merges PR, creates RELEASE  
 
-[![subdmodule-updates](https://github.com/coolbreeze413/gharial/actions/workflows/release-on-pr.yml/badge.svg)](https://github.com/coolbreeze413/gharial/actions/workflows/release-on-pr.yml)
+[![release-on-pr](https://github.com/coolbreeze413/gharial/actions/workflows/release-on-pr.yml/badge.svg)](https://github.com/coolbreeze413/gharial/actions/workflows/release-on-pr.yml)
 
 [![](https://img.shields.io/static/v1?label=actions&labelColor=444444&message=release-on-pr.yml&color=2088FF&logo=github&logoColor=2088FF)](https://github.com/coolbreeze413/gharial/blob/master/.github/workflows/release-on-pr.yml)
+
+gh actions processes RELEASE, creates a docker image, and pushes it into ghcr.io  
+
+[![release-on-pr](https://github.com/coolbreeze413/gharial/actions/workflows/docker-image-on-release.yml/badge.svg)](https://github.com/coolbreeze413/gharial/actions/workflows/docker-image-on-release.yml)
+
+[![](https://img.shields.io/static/v1?label=actions&labelColor=444444&message=docker-image-on-release.yml&color=2088FF&logo=github&logoColor=2088FF)](https://github.com/coolbreeze413/gharial/blob/master/.github/workflows/docker-image-on-release.yml)
 
 
 - script in the repo
@@ -37,6 +43,20 @@ gh actions processes PR, merges PR, creates RELEASE
 - if yes, gha adds a comment, and approves review for the PR
 - gha auto merges PR with squash
 - gha creates a release from master and uploads artifact into release
+- gha process release, builds a docker image with the release script
+- gha pushes the docker image into ghcr.io with `latest` tag, and version in the labels
+- pull the latest docker image using: `docker pull ghcr.io/coolbreeze413/gharial:latest`
+- run the docker container, wrapper scripts provided for easy usage:  
+  `./gharial_docker_run_shell.sh --workdir $PWD --gharial-image ghcr.io/coolbreeze413/gharial:latest`  
+  this will run the docker container, and drop into a bash shell session  
+  to run the script, just execute `gharial_release`  
+    
+  `./gharial_docker_run_gharial.sh --workdir $PWD --gharial-image ghcr.io/coolbreeze413/gharial:latest`  
+  this will run the docker container, execute the `gharial_release` and exit the container  
+    
+  `./gharial_docker_run_gharial_gui.sh --workdir $PWD --gharial-image ghcr.io/coolbreeze413/gharial:latest`  
+  this will run the docker container, setup display, execute the `gharial_release` and exit the container  
+  this is an example where the target is a GUI application running in the container that we want to use as if it was a native GUI app on the HOST.
 
 
 ## [3] submodule update gh action
