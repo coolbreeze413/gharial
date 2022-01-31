@@ -50,20 +50,17 @@ RUN echo 'root:docker' | chpasswd
 RUN mkdir /gharial
 COPY ./${GHARIAL_RELEASE_SCRIPT} /gharial/
 
+# default ENTRYPOINT + CMD
+# control the CMD using the docker run command - wrapper scripts to provide examples
+COPY ./gharial_entrypoint.sh /gharial/
+
 # world rw permissions so that we can execute with userid:groupid same as user from HOST, if needed
 #RUN ls -ll /gharial
-RUN chmod ugo+rwx /gharial
-RUN chmod ugo+rwx /gharial/${GHARIAL_RELEASE_SCRIPT}
+RUN chmod -R ugo+rwx /gharial
 
 # set ENV variables
 ENV PATH=/gharial:$PATH
 #RUN echo $PATH
-
-
-# default ENTRYPOINT + CMD
-# control the CMD using the docker run command - wrapper scripts to provide examples
-COPY ./gharial_entrypoint.sh /
-RUN chmod ugo+x /gharial_entrypoint.sh
 
 
 # switch to non-root user before starting to run
