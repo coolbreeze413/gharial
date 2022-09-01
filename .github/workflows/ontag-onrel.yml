@@ -1,0 +1,32 @@
+name: on-tag-on-rel
+
+on:
+  push:
+  # Pattern matched against refs/tags
+    tags:
+      - '^v.*\..*\..*-[a-z]*'
+  release:
+    types: 
+      - published
+  workflow_dispatch:
+
+
+jobs:
+
+  test:
+
+    runs-on: ubuntu-20.04
+    
+    steps:
+    - name: step 1 print a few variables
+      run:  |
+        echo "event: ${{ github.event_name }}"
+        echo "os: ${{ runner.os }}"
+        echo "branch: ${{ github.ref }}"
+        echo "action: ${{ github.action }}"
+        echo "actor: ${{ github.actor }}"
+
+    - name: Dump GitHub context
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+      run: echo "$GITHUB_CONTEXT"
