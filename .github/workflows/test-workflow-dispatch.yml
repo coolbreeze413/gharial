@@ -51,4 +51,4 @@ jobs:
           gh --version
           gh workflow run workflow-dispatch-workflow.yml --ref ${{ github.ref_name }}
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
