@@ -34,6 +34,11 @@ jobs:
 
     steps:
 
+      - name: check out repo
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1 # just get the tip
+
       - name: Dump GitHub context
         run: |
           echo "context:"
@@ -51,4 +56,4 @@ jobs:
           gh --version
           gh workflow run workflow-dispatch-workflow.yml --ref ${{ github.ref_name }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
