@@ -49,6 +49,6 @@ jobs:
         run: |
           which gh
           gh --version
-          gh workflow run deploy-workflow.yml --ref ${{ github.ref_name }}
+          gh workflow run workflow-dispatch-workflow.yml --ref ${{ github.ref_name }}
         env:
           GITHUB_TOKEN: ${{ github.token }}
