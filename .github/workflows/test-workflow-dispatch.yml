@@ -1,0 +1,54 @@
+name: test-workflow-dispatch
+
+on:
+  push:
+    branches:
+      - 'master'
+
+jobs:
+  
+  simple-job:
+
+    name: simple-job
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+     
+      - name: print stuff
+        shell: bash
+        run:  |
+          uname -a
+          which bash
+
+  trigger-another-workflow:
+
+    name: trigger-another-workflow
+    runs-on: ubuntu-latest
+    needs: 
+      - simple-job
+
+    steps:
+
+      - name: Dump GitHub context
+        run: |
+          echo "context:"
+          echo "$GITHUB_CONTEXT"
+          echo ""
+          echo "needs:"
+          echo "$NEEDS"
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+          NEEDS: ${{ toJSON(needs) }}
+
+      - name: Trigger workflow
+        run: |
+          which gh
+          gh --version
+          gh workflow run deploy-workflow.yml --ref ${{ github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
