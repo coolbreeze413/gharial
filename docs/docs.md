@@ -130,5 +130,8 @@ There are quite a few other configuration options, and can be found here: https:
   - If not, then a webhook can be setup manually
   - reference: https://docs.readthedocs.io/en/latest/integrations.html#integration-creation
 
+- Add a badge
+  - copy the badge from the project dashboard on RTD and add it to the README.md of the repo.
+
 That's it, we should now be ready with automated documentation builds.
 Add another line.

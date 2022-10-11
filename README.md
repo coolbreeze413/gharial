@@ -1,6 +1,7 @@
 # gharial
 gha experiments so far...
 
+[![Documentation Status](https://readthedocs.org/projects/gharial/badge/?version=latest)](https://gharial.readthedocs.io/en/latest/?badge=latest)
 
 ## [1] script standalone
 
