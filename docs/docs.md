@@ -110,14 +110,24 @@ All paths are relative to the root of the repo.
 
 There are quite a few other configuration options, and can be found here: https://docs.readthedocs.io/en/stable/config-file/v2.html
 
-# RTD Enable Doc Build
+## RTD Enable Doc Build
 
-- Login to RTD:
-  - Use [](https://readthedocs.org/) for open source docs (public github repos)
-  - Use [](https://readthedocs.com/) for closed source docs (private github repos)
+- Login to RTD: refer [Choosing RTD Platform](https://docs.readthedocs.io/en/stable/choosing-a-site.html)
+  - Use [RTD Community](https://readthedocs.org/) for open source docs (public github repos)
+  - Use [RTD Business](https://readthedocs.com/) for closed source docs (private github repos)
 
 - Import Project:
-  - select Import a Project, and blah blah.
+  - select Import a Project, and Manually add by providing the repo details, or select from repo list (if Github account is connected to the ReadTheDocs account already)
+    
+    Refer to this for connecting Github Account to RTD: https://docs.readthedocs.io/en/latest/connected-accounts.html
 
+- Build Docs:
+  - Now that the project is imported, we can build the docs at anytime with the project link from RTD
 
+- Integration
+  - Integration with RTD enables RTD to autobuild documentation on push events etc.
+  - If the Github Account is connected to RTD, the integration should be setup automatically
+  - If not, then a webhook can be setup manually
+  - reference: https://docs.readthedocs.io/en/latest/integrations.html#integration-creation
 
+That's it, we should now be ready with automated documentation builds.
