@@ -65,7 +65,7 @@ jobs:
             DEVICE_PACKAGE_CONTINUOUS=$(echo "${DEVICE_PACKAGE_CURRENT}" | sed -e "s/${WHICHTAG}/continuous/")
             echo "${DEVICE_PACKAGE_CONTINUOUS}"
             echo "2"
-            let i++
+            i=i+1
             echo "3"
           done
 
