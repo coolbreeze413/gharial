@@ -35,8 +35,13 @@ jobs:
       - name: bash array items
         shell: bash
         run:  |
-          DEVICE_PACKAGES_ARRAY=($(ls ${{ env.au_device_package_pattern }}))
-          echo "0: ${DEVICE_PACKAGES_ARRAY}"
+          DEVICE_PACKAGES_ARRAY=()
+
+          while IFS=  read -r DEVICE_PACKAGE_LATEST ; do
+              DEVICE_PACKAGES_ARRAY+=("${DEVICE_PACKAGE_LATEST}")
+              echo "0: ${DEVICE_PACKAGES_ARRAY}"
+          done < <(find . -name "${{ env.au_device_package_pattern }}")
+          
           NUM_DEVICE_PACKAGES=${#DEVICE_PACKAGES_ARRAY[*]}
           echo "0: ${NUM_DEVICE_PACKAGES}"
           i=0
