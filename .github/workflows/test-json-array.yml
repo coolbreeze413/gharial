@@ -43,7 +43,8 @@ jobs:
 
           echo
           echo "array:"
-          echo "${DEVICE_PACKAGES_ARRAY[*]}"
+          # https://stackoverflow.com/a/15692004/3379867
+          printf '%s\n' "${DEVICE_PACKAGES_ARRAY[@]}"
           echo
           echo
 
