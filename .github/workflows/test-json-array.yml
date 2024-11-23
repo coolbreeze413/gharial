@@ -57,6 +57,7 @@ jobs:
           #   echo "${DEVICE_PACKAGE_CONTINUOUS}"
           #   let i++
           # done
+          i=0
           for DEVICE_PACKAGE_CURRENT in "${DEVICE_PACKAGES_ARRAY[@]}"; do
             echo $i
             echo "${DEVICE_PACKAGE_CURRENT}"
