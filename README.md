@@ -116,4 +116,6 @@ NOTE: the workflows from the triggering repo (dependabot_sub_a) use the repo sec
 this secret is added to the repo, with the PAT which can actually access the target repo (gharial)
 default `GITHUB_TOKEN` cannot be used.  
 
-NOTE: the same event can be sent from any REST client (cURL) using an appropriate PAT, such as from a script, instead of from the workflow of another repo.  
+NOTE: the same event can be sent from any REST client (cURL) using an appropriate PAT, such as from a script, instead of from the workflow of another repo. 
+
+adding test changes
