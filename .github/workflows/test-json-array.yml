@@ -26,6 +26,12 @@ jobs:
             echo "$item"
           done
 
+      - name: check out repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+
       - name: bash array items
         shell: bash
         run:  |
