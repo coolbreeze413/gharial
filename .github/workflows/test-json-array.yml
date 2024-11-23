@@ -50,11 +50,11 @@ jobs:
 
           i=0
           while [ $i -lt ${NUM_FILES} ] ; do
-            DEVICE_PACKAGE_CURRENT=${DEVICE_PACKAGES_ARRAY[$i]}
-            echo ${DEVICE_PACKAGE_CURRENT}
-            DEVICE_PACKAGE_CONTINUOUS=$(echo ${DEVICE_PACKAGE_CURRENT} | sed -e "s/${WHICHTAG}/continuous/")
-            echo ${DEVICE_PACKAGE_CONTINUOUS}
+            echo $i
+            DEVICE_PACKAGE_CURRENT="${DEVICE_PACKAGES_ARRAY[$i]}"
+            echo "${DEVICE_PACKAGE_CURRENT}"
+            DEVICE_PACKAGE_CONTINUOUS=$(echo "${DEVICE_PACKAGE_CURRENT}" | sed -e "s/${WHICHTAG}/continuous/")
+            echo "${DEVICE_PACKAGE_CONTINUOUS}"
             let i++
-
           done
 
