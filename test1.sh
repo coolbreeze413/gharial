@@ -12,13 +12,25 @@ echo ${DEVICE_PACKAGES_ARRAY[*]}
 echo
 echo
 
-
+echo
+echo
 i=0
 while [ $i -lt ${NUM_FILES} ] ; do
+echo $i
   DEVICE_PACKAGE_CURRENT=${DEVICE_PACKAGES_ARRAY[$i]}
   echo ${DEVICE_PACKAGE_CURRENT}
   DEVICE_PACKAGE_CONTINUOUS=$(echo ${DEVICE_PACKAGE_CURRENT} | sed -e "s/${WHICHTAG}/continuous/")
   echo ${DEVICE_PACKAGE_CONTINUOUS}
   let i++
+done
 
+echo
+echo
+i=0
+for DEVICE_PACKAGE_CURRENT in "${DEVICE_PACKAGES_ARRAY[@]}"; do
+  echo $i
+  echo "${DEVICE_PACKAGE_CURRENT}"
+  DEVICE_PACKAGE_CONTINUOUS=$(echo "${DEVICE_PACKAGE_CURRENT}" | sed -e "s/${WHICHTAG}/continuous/")
+  echo "${DEVICE_PACKAGE_CONTINUOUS}"
+  let i++
 done

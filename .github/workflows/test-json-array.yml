@@ -59,10 +59,13 @@ jobs:
           # done
           i=0
           for DEVICE_PACKAGE_CURRENT in "${DEVICE_PACKAGES_ARRAY[@]}"; do
+            echo "1"
             echo $i
             echo "${DEVICE_PACKAGE_CURRENT}"
             DEVICE_PACKAGE_CONTINUOUS=$(echo "${DEVICE_PACKAGE_CURRENT}" | sed -e "s/${WHICHTAG}/continuous/")
             echo "${DEVICE_PACKAGE_CONTINUOUS}"
+            echo "2"
             let i++
+            echo "3"
           done
 
