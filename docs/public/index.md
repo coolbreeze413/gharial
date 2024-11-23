@@ -25,6 +25,7 @@ stub2
 rst_example
 image_in_docs
 image_in_repo
+stub_rst.rst
 ```
 
 <!---

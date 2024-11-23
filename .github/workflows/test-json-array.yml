@@ -14,6 +14,7 @@ jobs:
 
     env:
       MULTIPLE_ITEMS_JSON: '["item_a", "item_b", "item_c", "item with spaces"]'
+      au_device_package_pattern: testarray/PACKAGEPREFIX_*_en.tar.gz
 
     steps:
 
@@ -24,3 +25,23 @@ jobs:
           for item in "${items[@]}"; do
             echo "$item"
           done
+
+      - name: bash array items
+        shell: bash
+        run:  |
+          DEVICE_PACKAGES_ARRAY=($(ls ${{ env.au_device_package_pattern }}))
+          echo "0: ${DEVICE_PACKAGES_ARRAY}"
+          NUM_DEVICE_PACKAGES=${#DEVICE_PACKAGES_ARRAY[*]}
+          echo "0: ${NUM_DEVICE_PACKAGES}"
+          i=0
+          while [ $i -lt ${NUM_DEVICE_PACKAGES} ] ; do
+            DEVICE_PACKAGE_LATEST=${DEVICE_PACKAGES_ARRAY[$i]}
+            echo "1: ${DEVICE_PACKAGE_LATEST}"
+            DEVICE_PACKAGE_CONTINUOUS=$(echo ${DEVICE_PACKAGE_LATEST} | sed -e "s/v2.8.0/continuous/")
+            mv ${DEVICE_PACKAGE_LATEST} ${DEVICE_PACKAGE_CONTINUOUS}
+            echo "2: ${DEVICE_PACKAGE_CONTINUOUS}"
+            sleep 1
+            echo "uploaded: ${DEVICE_PACKAGE_CONTINUOUS}"
+            let i++
+          done
+
