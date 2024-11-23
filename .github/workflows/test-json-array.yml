@@ -35,24 +35,26 @@ jobs:
       - name: bash array items
         shell: bash
         run:  |
-          DEVICE_PACKAGES_ARRAY=()
+          WHICHTAG="v2.8.0"
+          au_device_package_pattern="testarray/PACKAGEPREFIX_*_en.tar.gz"
+          DEVICE_PACKAGES_ARRAY=($(ls ${{ env.au_device_package_pattern }}))
+          NUM_FILES=${#DEVICE_PACKAGES_ARRAY[*]}
+          echo ">>> found : ${NUM_FILES} ${au_device_package_pattern} files"
 
-          while IFS=  read -r DEVICE_PACKAGE_LATEST ; do
-              DEVICE_PACKAGES_ARRAY+=("${DEVICE_PACKAGE_LATEST}")
-              echo "0: ${DEVICE_PACKAGES_ARRAY}"
-          done < <(find . -name "${{ env.au_device_package_pattern }}")
-          
-          NUM_DEVICE_PACKAGES=${#DEVICE_PACKAGES_ARRAY[*]}
-          echo "0: ${NUM_DEVICE_PACKAGES}"
+          echo
+          echo "array:"
+          echo ${DEVICE_PACKAGES_ARRAY[*]}
+          echo
+          echo
+
+
           i=0
-          while [ $i -lt ${NUM_DEVICE_PACKAGES} ] ; do
-            DEVICE_PACKAGE_LATEST=${DEVICE_PACKAGES_ARRAY[$i]}
-            echo "1: ${DEVICE_PACKAGE_LATEST}"
-            DEVICE_PACKAGE_CONTINUOUS=$(echo ${DEVICE_PACKAGE_LATEST} | sed -e "s/v2.8.0/continuous/")
-            mv ${DEVICE_PACKAGE_LATEST} ${DEVICE_PACKAGE_CONTINUOUS}
-            echo "2: ${DEVICE_PACKAGE_CONTINUOUS}"
-            sleep 1
-            echo "uploaded: ${DEVICE_PACKAGE_CONTINUOUS}"
+          while [ $i -lt ${NUM_FILES} ] ; do
+            DEVICE_PACKAGE_CURRENT=${DEVICE_PACKAGES_ARRAY[$i]}
+            echo ${DEVICE_PACKAGE_CURRENT}
+            DEVICE_PACKAGE_CONTINUOUS=$(echo ${DEVICE_PACKAGE_CURRENT} | sed -e "s/${WHICHTAG}/continuous/")
+            echo ${DEVICE_PACKAGE_CONTINUOUS}
             let i++
+
           done
 
